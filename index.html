@@ -191,12 +191,21 @@
 
     .site-loader__percent {
       margin: 0;
+      display: flex;
+      align-items: baseline;
+      justify-content: center;
       font-size: 1.875rem;
       line-height: 1.08;
       font-weight: 600;
       letter-spacing: -0.04em;
       color: rgb(23 23 23);
       font-variant-numeric: tabular-nums;
+    }
+
+    .site-loader__percent-sign {
+      font-size: 0.5em;
+      line-height: 1;
+      letter-spacing: 0;
     }
 
     .site-loader__label {
@@ -547,7 +556,18 @@
       width: 100%;
     }
 
-    #project-details.is-project-switching .project-detail:not([hidden]) > .project-copy {
+    #project-details.is-project-switching .project-detail:not([hidden]) > .project-copy,
+    #project-details.is-project-switching .project-detail:not([hidden]) > .pipeline-hub {
+      opacity: 1 !important;
+      transform: none !important;
+    }
+
+    #project-list-sticky.is-project-list-locked ~ #project-details .project-detail-block {
+      transition: none !important;
+    }
+
+    .project-detail:not(.is-pipeline-runner-active):not(.is-pipeline-pinned) > .project-copy,
+    .project-detail:not(.is-pipeline-runner-active):not(.is-pipeline-pinned) > .pipeline-hub {
       opacity: 1 !important;
       transform: none !important;
     }
@@ -2094,9 +2114,8 @@
 
     .pipeline-runner .gmp-pipeline-demo.is-scroll-driven [data-gmp-node="analysis"],
     .pipeline-runner .gmp-pipeline-demo.is-scroll-driven [data-gmp-connector] {
-      transition:
-        opacity 0.45s cubic-bezier(0.22, 1, 0.36, 1),
-        transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+      opacity: 0;
+      transition: none;
     }
 
     .gmp-pipeline-demo__node {
@@ -3173,7 +3192,12 @@
     body.is-project-open #project-list-sticky.is-collapse-instant .project-list-header,
     body.is-project-open #project-list-sticky.is-collapse-instant [role="list"] > li,
     body.is-project-open #project-list-sticky.is-collapse-instant [role="list"] > li .tabular-nums,
-    body.is-project-open #project-list-sticky.is-collapse-instant .project-link {
+    body.is-project-open #project-list-sticky.is-collapse-instant .project-link,
+    body.is-project-open #project-list-sticky.is-project-list-locked,
+    body.is-project-open #project-list-sticky.is-project-list-locked .project-list-header,
+    body.is-project-open #project-list-sticky.is-project-list-locked [role="list"] > li,
+    body.is-project-open #project-list-sticky.is-project-list-locked [role="list"] > li .tabular-nums,
+    body.is-project-open #project-list-sticky.is-project-list-locked .project-link {
       transition: none !important;
     }
 
@@ -3187,7 +3211,7 @@
       flex-direction: column;
       gap: 0;
       --dva-prose-width: min(33.333%, 100%);
-      --dva-caption-width: min(80%, 100%);
+      --dva-caption-width: var(--dva-prose-width);
       --dva-module-gap: 1.275rem;
       --dva-section-gap: clamp(2.025rem, 5.25vh, 3rem);
       --dva-wide-inset: 2%;
@@ -3222,45 +3246,38 @@
       overflow-x: clip;
     }
 
-    .dva-detail__copy-block .project-copy-caption {
+    #project-details .dva-detail__copy-block .project-copy-caption {
       max-width: 100%;
       text-wrap: normal;
+      font-size: var(--text-body);
+      line-height: var(--leading-body);
+      letter-spacing: var(--tracking-body);
+      font-weight: var(--font-weight-strong);
     }
 
-    .dva-detail__copy-block .project-copy-caption + .project-copy-caption {
+    #project-details .dva-detail__copy-block .project-copy-caption + .project-copy-caption {
       margin-top: 0.75rem;
     }
 
-    .dva-detail__copy-block .dva-detail__caption-en {
+    #project-details .dva-detail__copy-block .dva-detail__caption-en {
       text-wrap: normal;
     }
 
-    @media (min-width: 1024px) {
-      .dva-detail__step > .dva-detail__copy-block {
-        width: min(100%, 38em);
-      }
-
-      .dva-detail__copy-block .dva-detail__caption-line {
-        white-space: nowrap;
-      }
-
-      .dva-detail__copy-block .dva-detail__caption-cjk .text-cjk {
-        white-space: nowrap;
-      }
-    }
-
-    .dva-detail__copy-block .dva-detail__caption-line {
+    #project-details .dva-detail__copy-block .dva-detail__caption-line {
       display: block;
-      line-height: var(--leading-large);
+      line-height: var(--leading-body);
+      white-space: normal;
     }
 
-    .dva-detail__copy-block .dva-detail__caption-cjk {
+    #project-details .dva-detail__copy-block .dva-detail__caption-cjk {
       margin-top: 0.75rem;
+      font-weight: var(--font-weight-strong);
     }
 
-    .dva-detail__copy-block .dva-detail__caption-cjk .text-cjk {
+    #project-details .dva-detail__copy-block .dva-detail__caption-cjk .text-cjk {
       display: block;
       font-size: calc(1em * var(--text-cjk-scale));
+      white-space: normal;
     }
 
     .dva-detail__copy {
@@ -3590,8 +3607,23 @@
       transform: translate(-50%, -50%);
     }
 
-    [data-dva-reveal][data-dva-reveal-order] {
+    [data-dva-reveal][data-dva-reveal-order]:not(.dva-detail__text-line) {
       transition-delay: calc(var(--dva-reveal-order, 0) * 60ms);
+    }
+
+    .dva-detail.project-detail-block {
+      opacity: 1;
+      transform: none;
+    }
+
+    .dva-detail__text-line[data-dva-reveal] {
+      transition: none;
+      will-change: opacity, transform;
+    }
+
+    [data-dva-detail] .dva-detail__copy-block .project-copy-caption {
+      opacity: 1;
+      transform: none;
     }
 
     @media (max-width: 767px) {
@@ -3828,7 +3860,7 @@
     <div class="site-loader__panel site-loader__panel--top" aria-hidden="true"></div>
     <div class="site-loader__panel site-loader__panel--bottom" aria-hidden="true"></div>
     <div class="site-loader__readout">
-      <p class="site-loader__percent" id="site-loader-percent">0%</p>
+      <p class="site-loader__percent" id="site-loader-percent"><span class="site-loader__percent-value">0</span><span class="site-loader__percent-sign" aria-hidden="true">%</span></p>
       <p class="site-loader__label"><span class="text-bracket-en">(Vibe Checking...)</span></p>
     </div>
   </div>
@@ -4397,7 +4429,7 @@
                     </div>
                   </div>
                 </div>
-                <div class="gmp-pipeline-demo__connector" data-gmp-connector aria-hidden="true"></div>
+                <div class="gmp-pipeline-demo__connector" data-gmp-connector data-gmp-upload-connector aria-hidden="true"></div>
                 <div class="gmp-pipeline-demo__node gmp-pipeline-demo__node--analysis" data-gmp-node="analysis">
                   <div class="gmp-pipeline-node gmp-pipeline-node--analysis">
                     <p class="gmp-pipeline-node__label">Analyze</p>
@@ -4463,7 +4495,7 @@
                     </div>
                   </div>
                 </div>
-                <div class="gmp-pipeline-demo__connector" data-gmp-connector aria-hidden="true"></div>
+                <div class="gmp-pipeline-demo__connector" data-gmp-connector data-gmp-upload-connector aria-hidden="true"></div>
                 <div class="gmp-pipeline-demo__node gmp-pipeline-demo__node--analysis" data-gmp-node="analysis">
                   <div class="gmp-pipeline-node gmp-pipeline-node--analysis">
                     <p class="gmp-pipeline-node__label">[ Analyze ]</p>
@@ -4529,7 +4561,7 @@
                     </div>
                   </div>
                 </div>
-                <div class="gmp-pipeline-demo__connector" data-gmp-connector aria-hidden="true"></div>
+                <div class="gmp-pipeline-demo__connector" data-gmp-connector data-gmp-upload-connector aria-hidden="true"></div>
                 <div class="gmp-pipeline-demo__node gmp-pipeline-demo__node--analysis" data-gmp-node="analysis">
                   <div class="gmp-pipeline-node gmp-pipeline-node--analysis">
                     <p class="gmp-pipeline-node__label">Analyze</p>
@@ -4595,7 +4627,7 @@
                     </div>
                   </div>
                 </div>
-                <div class="gmp-pipeline-demo__connector" data-gmp-connector aria-hidden="true"></div>
+                <div class="gmp-pipeline-demo__connector" data-gmp-connector data-gmp-upload-connector aria-hidden="true"></div>
                 <div class="gmp-pipeline-demo__node gmp-pipeline-demo__node--analysis" data-gmp-node="analysis">
                   <div class="gmp-pipeline-node gmp-pipeline-node--analysis">
                     <p class="gmp-pipeline-node__label">[ Analyze ]</p>
@@ -4646,19 +4678,19 @@
 
           <div class="dva-detail" data-dva-detail>
             <section class="dva-detail__step" aria-labelledby="dva-step-background">
-              <p class="project-copy-label" id="dva-step-background" data-dva-reveal>01 / Background &amp; Challenge</p>
-              <div class="dva-detail__copy-block" data-dva-reveal>
-                <p class="project-copy-caption dva-detail__caption-en"><span class="dva-detail__caption-line">Eliminating post-production barriers; enabling split-second packaging for talking-head videos</span><span class="dva-detail__caption-line">via highly structured industry templates and intelligent subtitles.</span></p>
-                <p class="project-copy-caption dva-detail__caption-cjk"><span class="text-cjk">破除传统后期高门槛，通过高度结构化的行业模板与智能化字幕，实现口播视频秒级包装。</span></p>
+              <p class="project-copy-label dva-detail__text-line" id="dva-step-background" data-dva-reveal>01 / Background &amp; Challenge</p>
+              <div class="dva-detail__copy-block">
+                <p class="project-copy-caption dva-detail__caption-en"><span class="dva-detail__caption-line dva-detail__text-line" data-dva-reveal>Eliminating post-production barriers; enabling split-second packaging for talking-head videos</span><span class="dva-detail__caption-line dva-detail__text-line" data-dva-reveal>via highly structured industry templates and intelligent subtitles.</span></p>
+                <p class="project-copy-caption dva-detail__caption-cjk"><span class="dva-detail__caption-line dva-detail__text-line text-cjk" data-dva-reveal>破除传统后期高门槛，通过高度结构化的行业模板与智能化字幕，实现口播视频秒级包装。</span></p>
               </div>
               <div class="dva-detail__vconnector" data-dva-reveal aria-hidden="true"></div>
             </section>
 
             <section class="dva-detail__step" aria-labelledby="dva-step-matrix">
-              <p class="project-copy-label" id="dva-step-matrix" data-dva-reveal>02 / Industry-Specific Matrix</p>
-              <div class="dva-detail__copy-block" data-dva-reveal>
-                <p class="project-copy-caption dva-detail__caption-en"><span class="dva-detail__caption-line">Mapping a visual preset matrix across the dual axes of &ldquo;Stylization&rdquo;</span><span class="dva-detail__caption-line">and &ldquo;Professionalism,&rdquo; tailored to distinct commercial narratives.</span></p>
-                <p class="project-copy-caption dva-detail__caption-cjk"><span class="text-cjk">洞察不同垂直行业的商业叙事逻辑，构建横跨&ldquo;风格化&rdquo;与&ldquo;专业性&rdquo;双轴的视觉预设矩阵。</span></p>
+              <p class="project-copy-label dva-detail__text-line" id="dva-step-matrix" data-dva-reveal>02 / Industry-Specific Matrix</p>
+              <div class="dva-detail__copy-block">
+                <p class="project-copy-caption dva-detail__caption-en"><span class="dva-detail__caption-line dva-detail__text-line" data-dva-reveal>Mapping a visual preset matrix across the dual axes of &ldquo;Stylization&rdquo;</span><span class="dva-detail__caption-line dva-detail__text-line" data-dva-reveal>and &ldquo;Professionalism,&rdquo; tailored to distinct commercial narratives.</span></p>
+                <p class="project-copy-caption dva-detail__caption-cjk"><span class="dva-detail__caption-line dva-detail__text-line text-cjk" data-dva-reveal>洞察不同垂直行业的商业叙事逻辑，构建横跨&ldquo;风格化&rdquo;与&ldquo;专业性&rdquo;双轴的视觉预设矩阵。</span></p>
               </div>
               <div class="dva-matrix">
                 <div class="dva-matrix__plot" role="img" aria-label="行业矩阵：横轴为专业性，纵轴为风格化">
@@ -4721,10 +4753,10 @@
             </section>
 
             <section class="dva-detail__step" aria-labelledby="dva-step-kinetic">
-              <p class="project-copy-label" id="dva-step-kinetic" data-dva-reveal>03 / Scene-Oriented Kinetic Visual System</p>
-              <div class="dva-detail__copy-block dva-kinetic__intro" data-dva-reveal>
-                <p class="project-copy-caption dva-detail__caption-en"><span class="dva-detail__caption-line">Focusing on talking-head scenarios, leveraging</span><span class="dva-detail__caption-line">audio-driven kinetic typography and smart assets</span></p>
-                <p class="project-copy-caption dva-detail__caption-cjk"><span class="text-cjk">聚焦口播场景，以音视同构的动力学字效与智能组件降低后期门槛，全面释放泛视频创作生产力。</span></p>
+              <p class="project-copy-label dva-detail__text-line" id="dva-step-kinetic" data-dva-reveal>03 / Scene-Oriented Kinetic Visual System</p>
+              <div class="dva-detail__copy-block dva-kinetic__intro">
+                <p class="project-copy-caption dva-detail__caption-en"><span class="dva-detail__caption-line dva-detail__text-line" data-dva-reveal>Focusing on talking-head scenarios, leveraging</span><span class="dva-detail__caption-line dva-detail__text-line" data-dva-reveal>audio-driven kinetic typography and smart assets</span></p>
+                <p class="project-copy-caption dva-detail__caption-cjk"><span class="dva-detail__caption-line dva-detail__text-line text-cjk" data-dva-reveal>聚焦口播场景，以音视同构的动力学字效与智能组件降低后期门槛，全面释放泛视频创作生产力。</span></p>
               </div>
               <div class="dva-cases">
                 <article class="dva-case" data-dva-reveal data-dva-reveal-order="1">
@@ -5177,7 +5209,6 @@
     let allowProjectListCollapse = false;
     let projectSwitchScrollLock = false;
     let projectListSwitchLock = false;
-    let preserveCollapsedListOnSwitch = false;
     let projectOverviewResizeObserver = null;
 
     document.querySelectorAll('.project-detail').forEach((panel) => {
@@ -5219,32 +5250,161 @@
       return document.querySelector(`.project-detail[data-project="${projectId}"]`);
     }
 
-    function pinCollapsedListScrollThreshold() {
-      if (!projectListSticky?.classList.contains('is-scrolled')) return;
-      collapseScrollY = Math.max(0, getScrollY() - 2);
-    }
+    function measureProjectListHeight(collapsed) {
+      if (!projectListSticky) return 0;
 
-    function lockCollapsedListForSwitch() {
-      if (!projectListSticky) return;
-      projectListSticky.classList.add('is-scrolled', 'is-collapse-instant');
+      const wantScrolled = Boolean(collapsed);
+      if (projectListSticky.classList.contains('is-scrolled') === wantScrolled) {
+        return projectListSticky.offsetHeight;
+      }
+
+      if (projectListSticky.classList.contains('is-project-list-locked')) {
+        return projectListSticky.offsetHeight;
+      }
+
+      const wasScrolled = projectListSticky.classList.contains('is-scrolled');
+      const hadInstant = projectListSticky.classList.contains('is-collapse-instant');
+
+      if (!hadInstant) projectListSticky.classList.add('is-collapse-instant');
+      projectListSticky.classList.toggle('is-scrolled', wantScrolled);
       void projectListSticky.offsetHeight;
-      pinCollapsedListScrollThreshold();
+      const height = projectListSticky.offsetHeight;
+      projectListSticky.classList.toggle('is-scrolled', wasScrolled);
+      if (!hadInstant) projectListSticky.classList.remove('is-collapse-instant');
+
+      return height;
     }
 
-    function releaseListCollapseInstant() {
+    function measureExpandedProjectListHeight() {
+      return measureProjectListHeight(false);
+    }
+
+    function measureCollapsedProjectListHeight() {
+      return measureProjectListHeight(true);
+    }
+
+    function canFitExpandedProjectList() {
+      if (!projectListSticky) return true;
+      const expandedHeight = measureExpandedProjectListHeight();
+      const listTop = projectListSticky.getBoundingClientRect().top;
+      return listTop + expandedHeight <= window.innerHeight - 8;
+    }
+
+    function computeCollapseScrollThreshold(panel = getActiveProjectPanel()) {
+      if (!panel || !projectListSticky) return 0;
+
+      const overview = panel.querySelector('.project-copy');
+      if (!overview) return 0;
+
+      const scrollY = getScrollY();
+      const overviewTop = overview.getBoundingClientRect().top;
+      const listTop = projectListSticky.getBoundingClientRect().top;
+      const collapsedHeight = measureCollapsedProjectListHeight();
+
+      return scrollY + overviewTop - (listTop + collapsedHeight);
+    }
+
+    function refreshCollapseScrollThreshold(panel = getActiveProjectPanel()) {
+      if (!projectListSticky || !projectDetails || projectDetails.classList.contains('hidden')) return;
+      if (projectListSwitchLock) return;
+      collapseScrollY = computeCollapseScrollThreshold(panel);
+    }
+
+    function shouldCollapseProjectList() {
+      if (!allowProjectListCollapse) return false;
+
+      const panel = getActiveProjectPanel();
+      if (!panel || panel.hidden) return false;
+      if (panel.classList.contains('is-pipeline-pinned') || isPipelineRunnerActive(panel)) {
+        return true;
+      }
+      if (!canFitExpandedProjectList()) return true;
+      if (collapseScrollY === null) refreshCollapseScrollThreshold(panel);
+      if (collapseScrollY === null) return false;
+      return getScrollY() > collapseScrollY + 1;
+    }
+
+    function applyProjectListCollapseState({ instant = false, keepInstant = false, forceWhileLocked = false } = {}) {
+      if (!projectListSticky) return;
+      if (!forceWhileLocked && projectListSticky.classList.contains('is-project-list-locked')) return;
+
+      const shouldCollapse = shouldCollapseProjectList();
+      const isCollapsed = projectListSticky.classList.contains('is-scrolled');
+      if (shouldCollapse === isCollapsed) return;
+
+      if (instant) projectListSticky.classList.add('is-collapse-instant');
+      projectListSticky.classList.toggle('is-scrolled', shouldCollapse);
+      void projectListSticky.offsetHeight;
+      if (shouldCollapse !== isCollapsed) {
+        scheduleProjectListThresholdMeasure();
+      }
+      if (instant && !keepInstant) {
+        requestAnimationFrame(() => {
+          if (projectListSticky?.classList.contains('is-project-list-locked')) return;
+          projectListSticky?.classList.remove('is-collapse-instant');
+        });
+      }
+    }
+
+    function resetToProjectOpenPosition() {
+      if (!projectListSticky || !document.body.classList.contains('is-project-open')) return;
+
+      projectSwitchScrollLock = true;
+      document.body.classList.remove('is-pipeline-scroll-locked');
+      projectListSticky.classList.add('is-collapse-instant');
+      projectListSticky.classList.remove('is-scrolled');
+      void projectListSticky.offsetHeight;
+
+      const applyScrollTop = () => {
+        window.scrollTo(0, 0);
+        document.documentElement.scrollTop = 0;
+        document.body.scrollTop = 0;
+
+        if (lenis) {
+          lenis.scrollTo(0, { immediate: true, force: true });
+          lenis.raf(performance.now());
+        }
+      };
+
+      if (lenis) lenis.stop();
+      applyScrollTop();
+
+      projectSwitchScrollLock = false;
+      collapseScrollY = computeCollapseScrollThreshold();
+
+      requestAnimationFrame(applyScrollTop);
+    }
+
+    function finishProjectOpenLayout(onSettled) {
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
-          projectListSwitchLock = false;
-          const shouldStayCollapsed = preserveCollapsedListOnSwitch;
-          if (shouldStayCollapsed) {
-            lockCollapsedListForSwitch();
+          resetToProjectOpenPosition();
+
+          const panel = getActiveProjectPanel();
+          resetProjectDetailReveal(panel);
+          updateProjectDetailReveal();
+
+          if (panel?.dataset.project === '03') {
+            updateDvaDetailReveal();
           }
-          preserveCollapsedListOnSwitch = false;
+
+          projectListSticky?.classList.remove('is-project-list-locked');
+          projectListSwitchLock = false;
+
           requestAnimationFrame(() => {
             projectListSticky?.classList.remove('is-collapse-instant');
-            if (!shouldStayCollapsed) {
-              remeasureProjectListThreshold();
+            updateProjectDetailReveal();
+            if (panel?.dataset.project === '03') {
+              updateDvaDetailReveal();
             }
+            if (lenis) lenis.start();
+            enableProjectListCollapse();
+            refreshCollapseScrollThreshold(panel);
+            applyProjectListCollapseState({ instant: true });
+            requestAnimationFrame(() => {
+              projectListSticky?.classList.remove('is-collapse-instant');
+            });
+            onSettled?.();
           });
         });
       });
@@ -5276,13 +5436,26 @@
       document.querySelectorAll('[data-dva-reveal]').forEach((el) => {
         el.classList.remove('is-revealed');
         el.style.removeProperty('--dva-reveal-order');
+        if (el.classList.contains('dva-detail__text-line')) {
+          el.style.removeProperty('opacity');
+          el.style.removeProperty('transform');
+        }
       });
     }
 
     function primeDvaDetailReveal(panel) {
       if (!panel || panel.dataset.project !== '03') return;
 
+      let textLineOrder = 0;
+      panel.querySelectorAll('.dva-detail__step').forEach((step) => {
+        step.querySelectorAll('.dva-detail__text-line[data-dva-reveal]').forEach((el) => {
+          el.style.setProperty('--dva-reveal-order', String(textLineOrder));
+          textLineOrder += 1;
+        });
+      });
+
       panel.querySelectorAll('[data-dva-reveal][data-dva-reveal-order]').forEach((el) => {
+        if (el.classList.contains('dva-detail__text-line')) return;
         const order = Number(el.dataset.dvaRevealOrder);
         if (Number.isFinite(order)) {
           el.style.setProperty('--dva-reveal-order', String(order));
@@ -5296,9 +5469,53 @@
       }
     }
 
+    function computeDvaTextLineReveal(rect, revealTop, viewportHeight) {
+      const focusCenter = (revealTop + viewportHeight) * 0.5;
+      const elCenterY = rect.top + rect.height * 0.5;
+
+      if (elCenterY <= focusCenter) {
+        return 1;
+      }
+
+      const entryLine = viewportHeight * 0.96;
+      if (rect.top >= entryLine) {
+        return 0;
+      }
+
+      const distanceBelowCenter = elCenterY - focusCenter;
+      const rangeToCenter = Math.max(entryLine - focusCenter, rect.height + 32, 80);
+      return clamp(1 - distanceBelowCenter / rangeToCenter, 0, 1);
+    }
+
+    function applyDvaTextLineScrollReveal(el, revealTop, viewportHeight) {
+      const rect = el.getBoundingClientRect();
+
+      if (rect.bottom <= revealTop || rect.top >= viewportHeight) {
+        el.style.opacity = '0';
+        el.style.transform = 'translate3d(0, 1.25rem, 0)';
+        el.classList.remove('is-revealed');
+        return;
+      }
+
+      const progress = easeOutCubic(computeDvaTextLineReveal(rect, revealTop, viewportHeight));
+
+      if (progress >= 1) {
+        el.style.opacity = '1';
+        el.style.transform = 'translate3d(0, 0, 0)';
+        el.classList.add('is-revealed');
+        return;
+      }
+
+      const translateY = (1 - progress) * 20;
+      el.style.opacity = String(progress);
+      el.style.transform = `translate3d(0, ${translateY}px, 0)`;
+      el.classList.remove('is-revealed');
+    }
+
     function updateDvaDetailReveal() {
       if (prefersReducedMotion) return;
       if (!document.body.classList.contains('is-project-open')) return;
+      if (projectListSwitchLock || projectDetails?.classList.contains('is-project-switching')) return;
 
       const panel = document.querySelector('.project-detail[data-project="03"]:not([hidden])');
       if (!panel) return;
@@ -5306,11 +5523,17 @@
       const root = panel.querySelector('[data-dva-detail]');
       if (!root) return;
 
-      const revealEdge = window.innerHeight * 0.72;
+      const viewportHeight = window.innerHeight;
+      const revealTop = (projectListSticky?.getBoundingClientRect().bottom ?? 0) + 8;
+      const revealEdge = viewportHeight * 0.72;
 
-      root.querySelectorAll('[data-dva-reveal]:not(.is-revealed)').forEach((el) => {
+      root.querySelectorAll('.dva-detail__text-line[data-dva-reveal]').forEach((el) => {
+        applyDvaTextLineScrollReveal(el, revealTop, viewportHeight);
+      });
+
+      root.querySelectorAll('[data-dva-reveal]:not(.is-revealed):not(.dva-detail__text-line)').forEach((el) => {
         const rect = el.getBoundingClientRect();
-        if (rect.top > revealEdge || rect.bottom <= 56) return;
+        if (rect.top > revealEdge || rect.bottom <= revealTop) return;
         el.classList.add('is-revealed');
       });
     }
@@ -5346,6 +5569,7 @@
       }
 
       if (projectDetails.classList.contains('is-project-switching')) return;
+      if (projectListSwitchLock) return;
 
       const activePanel = getActiveProjectPanel();
       if (!activePanel || activePanel.hidden) return;
@@ -5356,9 +5580,15 @@
 
       blocks.forEach((block) => {
         if (
-          (activePanel.classList.contains('is-pipeline-pinned')
-            || activePanel.classList.contains('is-pipeline-runner-active'))
-          && (block.classList.contains('project-copy') || block.classList.contains('pipeline-runner'))
+          block.classList.contains('project-copy')
+          || block.classList.contains('pipeline-hub')
+          || block.classList.contains('dva-detail')
+          || block.hasAttribute('data-dva-detail')
+          || (
+            (activePanel.classList.contains('is-pipeline-pinned')
+              || activePanel.classList.contains('is-pipeline-runner-active'))
+            && block.classList.contains('pipeline-runner')
+          )
         ) {
           block.style.opacity = '1';
           block.style.transform = 'none';
@@ -5369,12 +5599,14 @@
         if (hasCaptions) {
           block.style.opacity = '1';
           block.style.transform = 'none';
-          [...block.children].forEach((child) => {
-            if (child.classList.contains('project-copy-caption')) return;
-            applyVerticalDetailReveal(child, revealTop, viewportHeight, {
-              isMotionReel: child.classList.contains('motion-reel-block'),
+          if (!block.classList.contains('dva-detail') && !block.hasAttribute('data-dva-detail')) {
+            [...block.children].forEach((child) => {
+              if (child.classList.contains('project-copy-caption')) return;
+              applyVerticalDetailReveal(child, revealTop, viewportHeight, {
+                isMotionReel: child.classList.contains('motion-reel-block'),
+              });
             });
-          });
+          }
           return;
         }
 
@@ -5393,6 +5625,11 @@
       });
 
       activePanel.querySelectorAll('.project-copy-caption').forEach((caption) => {
+        if (caption.closest('[data-dva-detail]')) {
+          caption.style.opacity = '';
+          caption.style.transform = '';
+          return;
+        }
         applyCaptionReveal(caption, revealTop, viewportHeight);
       });
     }
@@ -5400,8 +5637,8 @@
     function resetProjectListScrollState() {
       projectListSticky?.classList.remove('is-scrolled');
       projectListSticky?.classList.remove('is-collapse-instant');
+      projectListSticky?.classList.remove('is-project-list-locked');
       projectListSwitchLock = false;
-      preserveCollapsedListOnSwitch = false;
       collapseScrollY = null;
       lastPipelineDetailScrollY = 0;
       allowProjectListCollapse = false;
@@ -5412,7 +5649,6 @@
     function scrollToActiveProjectOverview({
       immediate = true,
       observeResize = false,
-      preserveListCollapse = false,
       keepCollapseInstant = false,
     } = {}) {
       if (
@@ -5433,14 +5669,14 @@
       if (!keepCollapseInstant) {
         projectListSticky.classList.add('is-collapse-instant');
       }
-      if (preserveListCollapse) {
-        projectListSticky.classList.add('is-scrolled');
-      } else {
-        projectListSticky.classList.remove('is-scrolled');
-      }
+
       void projectListSticky.offsetHeight;
 
-      const listHeight = projectListSticky.offsetHeight;
+      const listHeight = projectListSwitchLock
+        ? projectListSticky.offsetHeight
+        : (projectListSticky.classList.contains('is-scrolled')
+          ? measureCollapsedProjectListHeight()
+          : measureExpandedProjectListHeight());
       const overviewDocumentTop = overview.getBoundingClientRect().top + getScrollY();
       const overviewGap = 8;
       const target = Math.max(0, overviewDocumentTop - listHeight - overviewGap);
@@ -5457,20 +5693,19 @@
       if (lenis) {
         lenis.scrollTo(clampedTarget, { immediate, force: true });
         lenis.raf(performance.now());
-        lenis.start();
+        if (!projectListSwitchLock) lenis.start();
       }
 
       if (!keepCollapseInstant) {
         projectListSticky.classList.remove('is-collapse-instant');
       }
-      if (preserveListCollapse) {
-        projectListSticky.classList.add('is-scrolled');
-        lockCollapsedListForSwitch();
-      }
       projectSwitchScrollLock = false;
 
-      if (!projectListSwitchLock && !preserveCollapsedListOnSwitch) {
-        scheduleProjectListThresholdMeasure();
+      if (!projectListSwitchLock) {
+        refreshCollapseScrollThreshold(panel);
+        applyProjectListCollapseState({
+          instant: keepCollapseInstant || projectListSticky.classList.contains('is-collapse-instant'),
+        });
       }
 
       if (!observeResize) return;
@@ -5491,7 +5726,6 @@
         scrollToActiveProjectOverview({
           immediate: true,
           observeResize: false,
-          preserveListCollapse,
           keepCollapseInstant: projectListSwitchLock,
         });
       });
@@ -5507,7 +5741,6 @@
 
     function scheduleScrollToActiveProjectOverview({
       afterLayout = false,
-      preserveListCollapse = false,
       keepCollapseInstant = false,
       singlePass = false,
     } = {}) {
@@ -5517,7 +5750,6 @@
             scrollToActiveProjectOverview({
               immediate: true,
               observeResize: false,
-              preserveListCollapse,
               keepCollapseInstant,
             });
           });
@@ -5528,7 +5760,6 @@
       const run = (observeResize = false) => scrollToActiveProjectOverview({
         immediate: true,
         observeResize,
-        preserveListCollapse,
         keepCollapseInstant,
       });
       const retryDelays = [0, 100, 300, 600];
@@ -5563,38 +5794,15 @@
     function shouldKeepProjectListCollapsed() {
       const panel = getActiveProjectPanel();
       if (!panel || panel.hidden) return false;
-      if (panel.classList.contains('is-pipeline-pinned')) return true;
-      if (isPipelineHorizontallyEngaged(panel)) return true;
-      if (isPipelineEntryPending(panel)) return true;
-      if (isPipelineRunnerActive(panel)) return true;
-      if (
-        panel.classList.contains('is-pipeline-runner-active')
-        && collapseScrollY !== null
-        && getScrollY() > collapseScrollY + 1
-      ) {
-        return true;
-      }
-      return false;
+      return panel.classList.contains('is-pipeline-pinned') || isPipelineRunnerActive(panel);
     }
 
     function ensurePipelineListCollapsed(panel = getActiveProjectPanel(), instant = false) {
       if (!projectListSticky || !document.body.classList.contains('is-project-open')) return;
 
       enableProjectListCollapse();
-
-      if (instant) projectListSticky.classList.add('is-collapse-instant');
-
-      if (!projectListSticky.classList.contains('is-scrolled')) {
-        projectListSticky.classList.add('is-scrolled');
-      }
-
+      applyProjectListCollapseState({ instant });
       void projectListSticky.offsetHeight;
-
-      if (instant) {
-        requestAnimationFrame(() => {
-          projectListSticky?.classList.remove('is-collapse-instant');
-        });
-      }
 
       if (panel && isPipelineRunnerActive(panel)) {
         updatePipelinePinMetrics(panel);
@@ -5602,45 +5810,11 @@
     }
 
     function remeasureProjectListThreshold() {
-      if (!projectListSticky || !projectDetails || projectDetails.classList.contains('hidden')) return;
-      if (projectDetails.classList.contains('is-project-switching')) return;
-      if (projectListSwitchLock) return;
-      if (preserveCollapsedListOnSwitch) {
-        lockCollapsedListForSwitch();
-        return;
-      }
-
-      const wasCollapsed = projectListSticky.classList.contains('is-scrolled');
-      const keepCollapsed = shouldKeepProjectListCollapsed() || wasCollapsed;
-      if (!keepCollapsed) {
-        projectListSticky.classList.remove('is-scrolled');
-      }
-
-      const listHeight = keepCollapsed && projectListSticky.classList.contains('is-scrolled')
-        ? projectListSticky.offsetHeight
-        : (() => {
-          projectListSticky.classList.add('is-collapse-instant');
-          const wasScrolled = projectListSticky.classList.contains('is-scrolled');
-          if (!wasScrolled) projectListSticky.classList.add('is-scrolled');
-          void projectListSticky.offsetHeight;
-          const height = projectListSticky.offsetHeight;
-          projectListSticky.classList.remove('is-collapse-instant');
-          if (!wasScrolled && !keepCollapsed) projectListSticky.classList.remove('is-scrolled');
-          return height;
-        })();
-
-      const activePanel = getActiveProjectPanel();
-      const overviewBlock = activePanel?.querySelector('.project-detail-block');
-      const anchorRect = overviewBlock
-        ? overviewBlock.getBoundingClientRect()
-        : projectDetails.getBoundingClientRect();
-      const anchorPageBottom = anchorRect.bottom + getScrollY();
-      collapseScrollY = anchorPageBottom - listHeight;
+      refreshCollapseScrollThreshold();
     }
 
     function scheduleProjectListThresholdMeasure() {
       if (projectListSwitchLock) return;
-      if (preserveCollapsedListOnSwitch) return;
 
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
@@ -5652,8 +5826,9 @@
     function updateProjectListScrollState() {
       if (!projectListSticky) return;
       if (projectSwitchScrollLock) return;
-      if (projectListSwitchLock || preserveCollapsedListOnSwitch) return;
+      if (projectListSwitchLock) return;
       if (projectListSticky.classList.contains('is-collapse-instant')) return;
+      if (projectListSticky.classList.contains('is-project-list-locked')) return;
       if (projectDetails?.classList.contains('is-project-switching')) return;
 
       if (
@@ -5665,44 +5840,18 @@
         return;
       }
 
+      const panel = getActiveProjectPanel();
+      if (!panel || panel.hidden) return;
+
+      if (isPipelineRunnerActive(panel) && !panel.classList.contains('is-pipeline-pinned')) {
+        return;
+      }
+
       if (collapseScrollY === null) {
-        remeasureProjectListThreshold();
+        refreshCollapseScrollThreshold(panel);
       }
 
-      if (collapseScrollY === null) return;
-
-      if (shouldKeepProjectListCollapsed()) {
-        ensurePipelineListCollapsed();
-        return;
-      }
-
-      const activePanel = getActiveProjectPanel();
-      if (!activePanel || activePanel.hidden) return;
-      if (activePanel.classList.contains('is-pipeline-runner-active')) {
-        return;
-      }
-
-      if (!allowProjectListCollapse) {
-        if (projectListSticky.classList.contains('is-scrolled')) {
-          projectListSticky.classList.remove('is-scrolled');
-          scheduleProjectListThresholdMeasure();
-        }
-        return;
-      }
-
-      const scrollY = getScrollY();
-      const isScrolled = projectListSticky.classList.contains('is-scrolled');
-      const shouldCollapse = scrollY > collapseScrollY + 1;
-
-      if (shouldCollapse === isScrolled) return;
-
-      if (shouldCollapse) {
-        projectListSticky.classList.add('is-scrolled');
-        return;
-      }
-
-      projectListSticky.classList.remove('is-scrolled');
-      scheduleProjectListThresholdMeasure();
+      applyProjectListCollapseState();
     }
 
     function isPipelineRunnerActive(panel) {
@@ -5713,25 +5862,10 @@
 
     function getCollapsedProjectListHeight() {
       if (!projectListSticky) return 0;
-
-      if (preserveCollapsedListOnSwitch || projectListSwitchLock) {
-        lockCollapsedListForSwitch();
+      if (projectListSticky.classList.contains('is-scrolled')) {
         return projectListSticky.offsetHeight;
       }
-
-      const wasScrolled = projectListSticky.classList.contains('is-scrolled');
-      if (!wasScrolled) projectListSticky.classList.add('is-scrolled');
-      projectListSticky.classList.add('is-collapse-instant');
-      void projectListSticky.offsetHeight;
-
-      const height = projectListSticky.offsetHeight;
-
-      projectListSticky.classList.remove('is-collapse-instant');
-      if (!wasScrolled && !shouldKeepProjectListCollapsed()) {
-        projectListSticky.classList.remove('is-scrolled');
-      }
-
-      return height;
+      return measureCollapsedProjectListHeight();
     }
 
     function getPipelinePinScrollY(panel) {
@@ -5740,23 +5874,12 @@
       const overview = panel.querySelector('.project-copy');
       if (!overview) return null;
 
-      const wasScrolled = projectListSticky.classList.contains('is-scrolled');
-      if (!wasScrolled) projectListSticky.classList.add('is-scrolled');
-      projectListSticky.classList.add('is-collapse-instant');
-      void projectListSticky.offsetHeight;
-
       const scrollY = getScrollY();
       const overviewTop = overview.getBoundingClientRect().top;
       const listTop = projectListSticky.getBoundingClientRect().top;
-      const collapsedHeight = projectListSticky.offsetHeight;
-      const effectiveListBottom = listTop + collapsedHeight;
+      const collapsedHeight = getCollapsedProjectListHeight();
 
-      projectListSticky.classList.remove('is-collapse-instant');
-      if (!wasScrolled && !shouldKeepProjectListCollapsed()) {
-        projectListSticky.classList.remove('is-scrolled');
-      }
-
-      return scrollY + overviewTop - effectiveListBottom;
+      return scrollY + overviewTop - (listTop + collapsedHeight);
     }
 
     function refreshPipelinePin(panel, { stopLenis = true } = {}) {
@@ -5770,12 +5893,12 @@
       if (pinY === null) return false;
 
       const maxScroll = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
-      if (maxScroll < pinY - 4) return false;
+      const targetPinY = Math.min(pinY, maxScroll);
 
-      panel.dataset.pipelinePinY = String(pinY);
-      scrollToPipelinePin(pinY, stopLenis);
+      panel.dataset.pipelinePinY = String(targetPinY);
+      scrollToPipelinePin(targetPinY, stopLenis);
       void panel.offsetHeight;
-      return isOverviewAlignedForPin(panel);
+      return isOverviewAlignedForPin(panel) || Math.abs(getScrollY() - targetPinY) <= 4;
     }
 
     function measurePipelineOverviewHeight(panel) {
@@ -5953,7 +6076,7 @@
       });
     }
 
-    function resetPipelineHubView(panel) {
+    function resetPipelineHubView(panel, { restoreScroll = true } = {}) {
       if (!panel) return;
 
       const hub = panel.querySelector('[data-pipeline-hub]');
@@ -5964,8 +6087,7 @@
       const anchorScrollY = panel.classList.contains('is-pipeline-pinned') && Number.isFinite(storedPinY)
         ? storedPinY
         : getScrollY();
-      lastPipelineDetailScrollY = anchorScrollY;
-      const shouldCollapseList = collapseScrollY !== null && anchorScrollY > collapseScrollY + 1;
+      const shouldCollapseList = restoreScroll && collapseScrollY !== null && anchorScrollY > collapseScrollY + 1;
 
       pauseAllPipelineRunnerVideos();
 
@@ -5977,10 +6099,15 @@
       resetPipelineTrackLayout(runner);
       releasePipelinePin(panel, false);
       panel.classList.remove('is-pipeline-runner-active');
+      delete panel.dataset.pipelineEntryPending;
 
       hub.hidden = false;
       runner.hidden = true;
       void hub.offsetHeight;
+
+      if (!restoreScroll) return;
+
+      lastPipelineDetailScrollY = anchorScrollY;
       restoreScrollPosition(anchorScrollY);
 
       requestAnimationFrame(() => {
@@ -6000,12 +6127,23 @@
       });
     }
 
-    function resetAllPipelineHubs() {
+    function resetAllPipelineHubs({ restoreScroll = true } = {}) {
       pauseAllPipelineRunnerVideos();
       document.querySelectorAll('[data-pipeline-hub]').forEach((hub) => {
         const panel = hub.closest('.project-detail');
-        if (panel) resetPipelineHubView(panel);
+        if (panel) resetPipelineHubView(panel, { restoreScroll });
       });
+    }
+
+    function bootPipelineScrollReveal(demo, runner) {
+      if (!demo?.startScrollReveal || demo.dataset.pipelineRevealBooted === '1') return;
+
+      demo.dataset.pipelineRevealBooted = '1';
+      if (runner) {
+        layoutPipelineRunner(runner);
+        measurePipelineViewport(runner);
+      }
+      demo.startScrollReveal();
     }
 
     function enterPipelineRunnerView(panel, runner, activeDemo, attempt = 0) {
@@ -6027,6 +6165,7 @@
           requestAnimationFrame(() => enterPipelineRunnerView(panel, runner, activeDemo, attempt + 1));
         } else {
           setPipelineEntryPending(panel, false);
+          bootPipelineScrollReveal(activeDemo ?? getActivePipelineDemo(runner), runner);
         }
         return;
       }
@@ -6039,6 +6178,7 @@
           requestAnimationFrame(() => enterPipelineRunnerView(panel, runner, activeDemo, attempt + 1));
         } else {
           setPipelineEntryPending(panel, false);
+          bootPipelineScrollReveal(activeDemo ?? getActivePipelineDemo(runner), runner);
         }
         return;
       }
@@ -6060,7 +6200,7 @@
 
         const active = activeDemo ?? getActivePipelineDemo(runner);
         if (initial) {
-          active?.startScrollReveal?.();
+          bootPipelineScrollReveal(active, runner);
         }
         active?.applyScrollProgress?.(Number(runner.dataset.pipelineProgress || 0));
       };
@@ -6128,6 +6268,7 @@
 
           requestAnimationFrame(() => {
             requestAnimationFrame(() => {
+              bootPipelineScrollReveal(activeDemo, runner);
               enterPipelineRunnerView(panel, runner, activeDemo);
             });
           });
@@ -6167,7 +6308,7 @@
         onComplete?.();
       };
 
-      resetAllPipelineHubs();
+      resetAllPipelineHubs({ restoreScroll: !animate });
       resetDvaMatrixPreview();
       projectDetails.classList.remove('hidden');
 
@@ -6243,7 +6384,7 @@
           projectSwitchTimer = null;
           resetProjectDetailReveal(incomingPanel);
           updateProjectDetailReveal();
-          if (!projectListSwitchLock && !preserveCollapsedListOnSwitch) {
+          if (!projectListSwitchLock) {
             scheduleProjectListThresholdMeasure();
           }
           finishOpen();
@@ -6313,22 +6454,13 @@
 
       const session = ++openProjectSession;
 
-      const listWasCollapsed = Boolean(
-        wasOpen && projectListSticky?.classList.contains('is-scrolled'),
-      );
-      const collapseWasAllowed = allowProjectListCollapse;
-
       document.body.classList.add('is-project-open');
       layoutShell.classList.add('is-project-open');
 
       if (wasOpen) {
         projectListSwitchLock = true;
-        preserveCollapsedListOnSwitch = listWasCollapsed;
-        if (listWasCollapsed) {
-          lockCollapsedListForSwitch();
-        } else {
-          projectListSticky?.classList.add('is-collapse-instant');
-        }
+        document.body.classList.remove('is-pipeline-scroll-locked');
+        projectListSticky?.classList.add('is-project-list-locked', 'is-collapse-instant');
       }
 
       projectLinks.forEach((item) => {
@@ -6342,25 +6474,15 @@
       const finalizeProjectOpen = () => {
         if (session !== openProjectSession) return;
 
-        if (wasOpen) {
-          allowProjectListCollapse = collapseWasAllowed;
-          scheduleScrollToActiveProjectOverview({
-            preserveListCollapse: listWasCollapsed,
-            keepCollapseInstant: true,
-            singlePass: true,
-          });
-          setTimeout(() => {
-            if (session !== openProjectSession) return;
-            releaseListCollapseInstant();
-          }, 1200);
-        } else {
+        if (!wasOpen) {
           resetProjectListScrollState();
-          scheduleScrollToActiveProjectOverview({ afterLayout: true });
-          setTimeout(() => {
-            if (session !== openProjectSession) return;
-            releaseListCollapseInstant();
-          }, 1000);
+        } else {
+          document.body.classList.remove('is-pipeline-scroll-locked');
+          projectListSticky?.classList.add('is-collapse-instant');
+          projectListSticky?.classList.remove('is-scrolled');
         }
+
+        finishProjectOpenLayout();
       };
 
       showProjectDetail(link.dataset.project, {
@@ -7049,7 +7171,7 @@
     const AWS_BRIEF_PHASE = 0.18;
     const AXIS_VIDEO_REVEAL_START = 0.82;
     const AWS_BRIEF_AUTO_MS = 2000;
-    const GMP_UPLOAD_AUTO_MS = 5000;
+    const GMP_UPLOAD_AUTO_MS = 2000;
     const GMP_MIN_VIRTUAL_SCROLL = 3600;
 
     function isDemoInputAutoPlay(demo) {
@@ -7140,6 +7262,10 @@
       if (isAxisWorkflowDemo(demo)) {
         demo.refreshAxisViewportOpacities?.();
         return;
+      }
+
+      if (demo?.hasAttribute('data-pipeline-demo')) {
+        demo.refreshGmpViewportOpacities?.();
       }
 
       const progress = Number(runner.dataset.pipelineProgress || 0);
@@ -8707,6 +8833,7 @@
 
         const resetDemo = () => {
           runSession += 1;
+          delete demo.dataset.pipelineRevealBooted;
           clearTimers();
           cancelBriefAuto();
           cancelPackageRaf();
@@ -8998,11 +9125,6 @@ Dialogue: Mona Lisa: "Fine, keep your fizzy water." Girl: "It complements my pea
           demo.inputAutoActive = false;
         };
 
-        const wait = (ms) => new Promise((resolve) => {
-          const timer = window.setTimeout(resolve, ms);
-          timers.push(timer);
-        });
-
         const applyUploadProgress = (uploadT) => {
           const t = clamp(uploadT, 0, 1);
           demo.classList.toggle('is-uploading', t > 0 && t < 1);
@@ -9018,30 +9140,30 @@ Dialogue: Mona Lisa: "Fine, keep your fizzy water." Girl: "It complements my pea
           }
         };
 
-        const updatePipelineFlowOpacities = (moveT) => {
+        const updateGmpViewportFlowOpacities = (runner) => {
+          const revealT = (element) => getPipelineViewportRevealT(element, runner);
           const analysisNode = demo.querySelector('[data-gmp-node="analysis"]');
           const analysisStatus = demo.querySelector('[data-analysis-status]');
           const connectors = demo.querySelectorAll('[data-gmp-connector]');
-          const scenes = demo.querySelectorAll('.pipeline-script-scene');
 
-          const analysisT = clamp((moveT - 0.02) / 0.16, 0, 1);
-
-          if (analysisNode) {
-            analysisNode.style.opacity = String(analysisT);
-            analysisNode.style.transform = `translate3d(${(1 - analysisT) * 20}px, 0, 0)`;
-          }
-
-          if (analysisStatus && analysisT > 0) {
-            analysisStatus.textContent = analysisT < 0.55 ? 'Analyzing product…' : 'Generating script…';
-          }
-
-          connectors.forEach((connector, index) => {
-            const thresholds = [0.04, 0.18, 0.62];
-            const connectorT = clamp((moveT - thresholds[index]) / 0.08, 0, 1);
-            connector.style.opacity = String(connectorT);
+          connectors.forEach((connector) => {
+            connector.style.opacity = String(revealT(connector));
+            connector.style.transform = '';
           });
 
-          const sceneSpan = scenes.length ? 0.72 / scenes.length : 0;
+          if (analysisNode) {
+            const analysisT = revealT(analysisNode);
+            analysisNode.style.opacity = String(analysisT);
+            analysisNode.style.transform = '';
+
+            if (analysisStatus && analysisT > 0) {
+              analysisStatus.textContent = analysisT < 0.55 ? 'Analyzing product…' : 'Generating script…';
+            }
+          }
+        };
+
+        const updatePipelineFlowOpacities = (moveT) => {
+          const scenes = demo.querySelectorAll('.pipeline-script-scene');
           scenes.forEach((scene, index) => {
             const sceneStart = 0.22 + index * sceneSpan;
             const sceneEnd = sceneStart + sceneSpan * 0.7;
@@ -9168,6 +9290,7 @@ Dialogue: Mona Lisa: "Fine, keep your fizzy water." Girl: "It complements my pea
           setPipelineTrackTargetOffset(runner, demo, targetOffset);
 
           const moveT = clamp((progress - GMP_UPLOAD_PHASE) / (1 - GMP_UPLOAD_PHASE), 0, 1);
+          updateGmpViewportFlowOpacities(runner);
           updatePipelineFlowOpacities(moveT);
           applyVideoRevealProgress(moveT);
         };
@@ -9218,6 +9341,12 @@ Dialogue: Mona Lisa: "Fine, keep your fizzy water." Girl: "It complements my pea
           uploadAutoRaf = requestAnimationFrame(tick);
         };
 
+        demo.refreshGmpViewportOpacities = () => {
+          const runner = demo.closest('[data-pipeline-runner]');
+          if (!runner) return;
+          updateGmpViewportFlowOpacities(runner);
+        };
+
         demo.refreshGmpScrollVisuals = (moveT) => {
           updatePipelineFlowOpacities(moveT);
           applyVideoRevealProgress(moveT);
@@ -9225,6 +9354,7 @@ Dialogue: Mona Lisa: "Fine, keep your fizzy water." Girl: "It complements my pea
 
         const resetDemo = () => {
           runSession += 1;
+          delete demo.dataset.pipelineRevealBooted;
           cancelUploadAuto();
           resetVideoReveal();
 
@@ -9528,6 +9658,7 @@ Dialogue: Mona Lisa: "Fine, keep your fizzy water." Girl: "It complements my pea
     function initSiteLoader(onComplete) {
       const loader = document.getElementById('site-loader');
       const percentEl = document.getElementById('site-loader-percent');
+      const percentValueEl = percentEl?.querySelector('.site-loader__percent-value');
 
       const finish = () => {
         loader?.remove();
@@ -9559,8 +9690,8 @@ Dialogue: Mona Lisa: "Fine, keep your fizzy water." Girl: "It complements my pea
         if (Math.abs(targetProgress - displayedProgress) < 0.4) {
           displayedProgress = targetProgress;
         }
-        if (percentEl) {
-          percentEl.textContent = `${Math.round(displayedProgress)}%`;
+        if (percentValueEl) {
+          percentValueEl.textContent = String(Math.round(displayedProgress));
         }
         if (!loader.isConnected || loader.classList.contains('is-revealing')) return;
         progressFrame = requestAnimationFrame(renderProgress);
