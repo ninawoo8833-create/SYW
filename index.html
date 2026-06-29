@@ -5970,6 +5970,30 @@
       document.documentElement.classList.toggle('is-pipeline-scroll-locked', locked);
     }
 
+    function syncLenisToPipelinePin(panel) {
+      if (!lenis || !panel) return;
+
+      const pinY = Number(panel.dataset.pipelinePinY || getPipelinePinScrollY(panel));
+      if (!Number.isFinite(pinY)) return;
+
+      lenis.scrollTo(pinY, { immediate: true, force: true });
+      lenis.raf(performance.now());
+    }
+
+    function schedulePipelineViewportMeasure(runner, attempt = 0) {
+      if (!runner || attempt > 16) return;
+
+      layoutPipelineRunner(runner);
+      const viewport = getPipelineViewport(runner);
+      if (!viewport || viewport.clientWidth < 4) {
+        requestAnimationFrame(() => schedulePipelineViewportMeasure(runner, attempt + 1));
+        return;
+      }
+
+      const activeDemo = getActivePipelineDemo(runner);
+      activeDemo?.applyScrollProgress?.(Number(runner.dataset.pipelineProgress || 0));
+    }
+
     let pipelinePinLocking = false;
 
     function isPipelineEntryPending(panel) {
@@ -5993,8 +6017,6 @@
       const maxScroll = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
       const target = Math.min(pinY, maxScroll);
 
-      if (lenis) lenis.stop();
-
       window.scrollTo(0, target);
       document.documentElement.scrollTop = target;
       document.body.scrollTop = target;
@@ -6002,7 +6024,6 @@
       if (lenis) {
         lenis.scrollTo(target, { immediate: true, force: true });
         lenis.raf(performance.now());
-        if (!stopLenisAfter) lenis.start();
       }
 
       if (hadScrollLock) setPipelineScrollLocked(true);
@@ -6030,8 +6051,6 @@
       setPipelineScrollLocked(true);
       runner?.classList.add('is-pinned');
 
-      if (lenis) lenis.stop();
-
       if (runner) {
         requestAnimationFrame(() => {
           refreshPipelinePin(panel, { stopLenis: true });
@@ -6050,7 +6069,6 @@
 
       if (!document.querySelector('.project-detail.is-pipeline-pinned')) {
         setPipelineScrollLocked(false);
-        if (lenis && resumeLenis) lenis.start();
       }
     }
 
@@ -6068,7 +6086,7 @@
 
       const progress = Number(runner?.dataset.pipelineProgress || 0);
       const inputPhase = activeDemo ? getDemoInputPhase(activeDemo) : 0;
-      if (progress > inputPhase + 0.0001 && progress < 0.999) return;
+      if (progress >= inputPhase - 0.0001 && progress < 0.999) return;
 
       const pinY = getPipelinePinScrollY(panel);
       if (pinY === null) return;
@@ -6188,7 +6206,6 @@
       setPipelineEntryPending(panel, true);
       enableProjectListCollapse();
       ensurePipelineListCollapsed(panel, true);
-      if (lenis) lenis.stop();
       layoutPipelineRunner(runner);
       void runner.offsetHeight;
       void panel.offsetHeight;
@@ -6222,7 +6239,6 @@
       panel.classList.add('is-pipeline-pinned');
       setPipelineScrollLocked(true);
       runner.classList.add('is-pinned');
-      if (lenis) lenis.stop();
 
       updatePipelinePinMetrics(panel);
       refreshPipelinePin(panel, { stopLenis: true });
@@ -6232,13 +6248,14 @@
         updatePipelinePinMetrics(panel);
         refreshPipelinePin(panel, { stopLenis: true });
         layoutPipelineRunner(runner);
-        measurePipelineViewport(runner);
+        schedulePipelineViewportMeasure(runner);
 
         const active = activeDemo ?? getActivePipelineDemo(runner);
         if (initial) {
           bootPipelineScrollReveal(active, runner);
         }
         active?.applyScrollProgress?.(Number(runner.dataset.pipelineProgress || 0));
+        syncLenisToPipelinePin(panel);
       };
 
       requestAnimationFrame(() => {
@@ -6272,7 +6289,6 @@
 
         const openPipeline = (targetId) => {
           releasePipelinePin(panel, false);
-          if (lenis) lenis.stop();
 
           demos.forEach((demo) => {
             const demoId = demo.dataset.workflowId || demo.dataset.pipelineId;
@@ -6577,19 +6593,14 @@
     let pipelineWheelHandler = null;
 
     function syncPipelinePinScroll(panel) {
-      if (!panel || !lenis) return;
-
-      const pinY = Number(panel.dataset.pipelinePinY || getPipelinePinScrollY(panel));
-      if (!Number.isFinite(pinY)) return;
-
-      lenis.scrollTo(pinY, { immediate: true, force: true });
+      syncLenisToPipelinePin(panel);
     }
 
     function getScrollY() {
       if (!lenis) return window.scrollY;
 
       const pipelineLocked = document.body.classList.contains('is-pipeline-scroll-locked');
-      if (lenis.isStopped || pipelineLocked) {
+      if (pipelineLocked) {
         return window.scrollY || document.documentElement.scrollTop || lenis.scroll;
       }
 
@@ -6643,18 +6654,9 @@
         smoothWheel: true,
         wheelMultiplier: 0.9,
         virtualScroll: (data) => {
+          if (data.event?.defaultPrevented) return false;
           if (!pipelineWheelHandler) return true;
-          if (pipelineWheelHandler(data.deltaY, data.event)) {
-            data.event.preventDefault();
-            return false;
-          }
-
-          const panel = getActiveProjectPanel();
-          if (panel && !panel.hidden && isPipelineRunnerActive(panel) && lenis?.isStopped) {
-            data.event.preventDefault();
-            return false;
-          }
-
+          if (dispatchPipelineWheel(data.deltaY, data.event)) return false;
           return true;
         },
       });
@@ -7100,6 +7102,11 @@
       const track = getPipelineTrack(runner);
       if (!viewport || !track) return 0;
 
+      if (viewport.clientWidth < 4) {
+        requestAnimationFrame(() => measureGmpPipelineTrack(runner, demo));
+        return 0;
+      }
+
       let colWidth = viewport.clientWidth * 0.333333;
       const availableHeight = getPipelineAvailableHeight(runner);
 
@@ -7110,6 +7117,7 @@
         }
       }
 
+      colWidth = Math.max(PIPELINE_MIN_COL_WIDTH, colWidth);
       viewport.style.setProperty('--pipeline-col', `${colWidth}px`);
 
       const videoStage = demo.querySelector('.gmp-pipeline-demo__stage--output');
@@ -7237,6 +7245,7 @@
     const AWS_BRIEF_AUTO_MS = 2000;
     const GMP_UPLOAD_AUTO_MS = 2000;
     const GMP_MIN_VIRTUAL_SCROLL = 3600;
+    const PIPELINE_MIN_COL_WIDTH = 180;
 
     function isDemoInputAutoPlay(demo) {
       const panel = demo?.closest('.project-detail');
@@ -7437,9 +7446,23 @@
       return getDemoVirtualScrollDistance(runner, demo);
     }
 
+    function normalizePipelineWheelDelta(deltaY) {
+      if (deltaY === 0) return 0;
+      if (Math.abs(deltaY) < 3) return Math.sign(deltaY) * 3;
+      return deltaY;
+    }
+
+    function getRawWheelDelta(event) {
+      let deltaY = event.deltaY;
+      if (event.deltaMode === 1) deltaY *= 16;
+      else if (event.deltaMode === 2) deltaY *= window.innerHeight;
+      return deltaY * 0.9;
+    }
+
     function applyDemoWheelDelta(runner, demo, deltaY) {
+      const normalizedDelta = normalizePipelineWheelDelta(deltaY);
       let progress = Number(runner.dataset.pipelineProgress || 0);
-      if (progress >= 1 && deltaY > 0) return;
+      if (progress >= 1 && normalizedDelta > 0) return;
       if (demo.inputAutoActive) return;
 
       if (isDemoInputAutoPlay(demo)) {
@@ -7448,9 +7471,20 @@
       }
 
       const virtualScroll = getDemoVirtualScrollDistance(runner, demo);
-      progress = clamp(progress + deltaY / virtualScroll, 0, 1);
+      progress = clamp(progress + normalizedDelta / virtualScroll, 0, 1);
       runner.dataset.pipelineProgress = String(progress);
       demo.applyScrollProgress?.(progress);
+    }
+
+    function dispatchPipelineWheel(deltaY, event) {
+      if (!pipelineWheelHandler) return false;
+
+      const handled = pipelineWheelHandler(deltaY, event);
+      if (!handled) return false;
+
+      event?.preventDefault();
+      event?.stopImmediatePropagation?.();
+      return true;
     }
 
     function initPipelineHorizontalScroll() {
@@ -7464,18 +7498,19 @@
         if (!runner) return false;
 
         const activeDemo = getActivePipelineDemo(runner);
+        const normalizedDelta = normalizePipelineWheelDelta(deltaY);
 
         if (!panel.classList.contains('is-pipeline-pinned')) {
-          if (deltaY <= 0) return false;
+          if (normalizedDelta <= 0) return false;
 
-          event?.preventDefault();
           snapPipelinePin(panel, { force: true });
+          syncLenisToPipelinePin(panel);
 
           if (activeDemo?.inputAutoActive) return true;
 
           if (activeDemo?.applyScrollProgress) {
             applyDemoWheelDelta(runner, activeDemo, deltaY);
-            syncPipelinePinScroll(panel);
+            syncLenisToPipelinePin(panel);
           }
 
           return true;
@@ -7484,31 +7519,35 @@
         ensurePipelineListCollapsed(panel);
 
         if (!activeDemo?.applyScrollProgress) {
-          event?.preventDefault();
+          syncLenisToPipelinePin(panel);
           return true;
         }
 
         const progress = Number(runner.dataset.pipelineProgress || 0);
 
-        if (progress <= 0 && deltaY < 0) {
+        if (progress <= 0 && normalizedDelta < 0) {
           releasePipelinePin(panel);
           return false;
         }
 
-        if (progress >= 1 && deltaY > 0) {
-          event?.preventDefault();
+        if (progress >= 1 && normalizedDelta > 0) {
+          syncLenisToPipelinePin(panel);
           return true;
         }
 
-        event?.preventDefault();
         applyDemoWheelDelta(runner, activeDemo, deltaY);
-        syncPipelinePinScroll(panel);
+        syncLenisToPipelinePin(panel);
         return true;
       };
 
+      window.addEventListener('wheel', (event) => {
+        if (prefersReducedMotion) return;
+        dispatchPipelineWheel(getRawWheelDelta(event), event);
+      }, { passive: false, capture: true });
+
       document.addEventListener('wheel', (event) => {
         if (prefersReducedMotion || lenis) return;
-        pipelineWheelHandler(event.deltaY, event);
+        dispatchPipelineWheel(event.deltaY, event);
       }, { passive: false, capture: true });
 
       document.addEventListener('touchstart', (event) => {
@@ -7522,11 +7561,19 @@
         const deltaY = touchStartY - currentY;
         if (Math.abs(deltaY) < 2) return;
 
-        const handled = pipelineWheelHandler(deltaY, event);
-        if (handled) {
-          touchStartY = currentY;
-          event.stopImmediatePropagation();
-        }
+        const handled = dispatchPipelineWheel(deltaY, event);
+        if (handled) touchStartY = currentY;
+      }, { passive: false, capture: true });
+
+      window.addEventListener('touchmove', (event) => {
+        if (prefersReducedMotion || touchStartY === null) return;
+
+        const currentY = event.touches[0]?.clientY ?? touchStartY;
+        const deltaY = touchStartY - currentY;
+        if (Math.abs(deltaY) < 2) return;
+
+        const handled = dispatchPipelineWheel(deltaY, event);
+        if (handled) touchStartY = currentY;
       }, { passive: false, capture: true });
 
       window.addEventListener('resize', () => {
@@ -8615,8 +8662,16 @@
         const completeAutoBriefPhase = () => {
           const runner = demo.closest('[data-pipeline-runner]');
           if (!runner) return;
+          const panel = demo.closest('.project-detail');
           runner.dataset.pipelineProgress = String(AWS_BRIEF_PHASE);
           applyScrollProgress(AWS_BRIEF_PHASE);
+          if (panel) {
+            if (!panel.classList.contains('is-pipeline-pinned')) {
+              snapPipelinePin(panel, { force: true });
+            }
+            schedulePipelineViewportMeasure(runner);
+            syncLenisToPipelinePin(panel);
+          }
         };
 
         const startAutoBriefSequence = () => {
@@ -9355,6 +9410,12 @@ Dialogue: Mona Lisa: "Fine, keep your fizzy water." Girl: "It complements my pea
             return;
           }
 
+          const uploadStage = demo.querySelector('.gmp-pipeline-demo__stage--upload');
+          if (uploadStage) {
+            uploadStage.style.opacity = '1';
+            uploadStage.style.transform = 'none';
+          }
+
           const uploadT = clamp(progress / GMP_UPLOAD_PHASE, 0, 1);
           applyUploadProgress(uploadT);
 
@@ -9370,8 +9431,16 @@ Dialogue: Mona Lisa: "Fine, keep your fizzy water." Girl: "It complements my pea
         const completeAutoUploadPhase = () => {
           const runner = demo.closest('[data-pipeline-runner]');
           if (!runner) return;
+          const panel = demo.closest('.project-detail');
           runner.dataset.pipelineProgress = String(GMP_UPLOAD_PHASE);
           applyScrollProgress(GMP_UPLOAD_PHASE);
+          if (panel) {
+            if (!panel.classList.contains('is-pipeline-pinned')) {
+              snapPipelinePin(panel, { force: true });
+            }
+            schedulePipelineViewportMeasure(runner);
+            syncLenisToPipelinePin(panel);
+          }
         };
 
         const startAutoUploadSequence = () => {
