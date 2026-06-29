@@ -2749,6 +2749,10 @@
       overscroll-behavior: none;
     }
 
+    html.is-pipeline-scroll-locked {
+      overflow: hidden;
+    }
+
     @media (prefers-reduced-motion: reduce) {
       [data-pipeline-reveal] {
         opacity: 1;
@@ -5378,7 +5382,7 @@
 
       projectSwitchScrollLock = true;
       projectListInteractionLock = true;
-      document.body.classList.remove('is-pipeline-scroll-locked');
+      setPipelineScrollLocked(false);
       projectListSticky.classList.add('is-collapse-instant');
 
       const settle = () => {
@@ -5663,7 +5667,7 @@
       collapseScrollY = null;
       lastPipelineDetailScrollY = 0;
       allowProjectListCollapse = false;
-      document.body.classList.remove('is-pipeline-scroll-locked');
+      setPipelineScrollLocked(false);
       if (lenis) lenis.start();
     }
 
@@ -5961,8 +5965,9 @@
       return getScrollY() >= pinY - 4 && isOverviewAlignedForPin(panel);
     }
 
-    function isPipelinePinned(panel) {
-      return Boolean(panel?.classList.contains('is-pipeline-pinned') && isPipelineRunnerActive(panel));
+    function setPipelineScrollLocked(locked) {
+      document.body.classList.toggle('is-pipeline-scroll-locked', locked);
+      document.documentElement.classList.toggle('is-pipeline-scroll-locked', locked);
     }
 
     let pipelinePinLocking = false;
@@ -5983,7 +5988,7 @@
     function scrollToPipelinePin(pinY, stopLenisAfter = false) {
       pipelinePinLocking = true;
       const hadScrollLock = document.body.classList.contains('is-pipeline-scroll-locked');
-      if (hadScrollLock) document.body.classList.remove('is-pipeline-scroll-locked');
+      if (hadScrollLock) setPipelineScrollLocked(false);
 
       const maxScroll = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
       const target = Math.min(pinY, maxScroll);
@@ -6000,7 +6005,7 @@
         if (!stopLenisAfter) lenis.start();
       }
 
-      if (hadScrollLock) document.body.classList.add('is-pipeline-scroll-locked');
+      if (hadScrollLock) setPipelineScrollLocked(true);
       pipelinePinLocking = false;
     }
 
@@ -6022,7 +6027,7 @@
       if (!aligned) return;
 
       panel.classList.add('is-pipeline-pinned');
-      document.body.classList.add('is-pipeline-scroll-locked');
+      setPipelineScrollLocked(true);
       runner?.classList.add('is-pinned');
 
       if (lenis) lenis.stop();
@@ -6044,7 +6049,7 @@
       panel?.querySelector('[data-pipeline-runner]')?.classList.remove('is-pinned');
 
       if (!document.querySelector('.project-detail.is-pipeline-pinned')) {
-        document.body.classList.remove('is-pipeline-scroll-locked');
+        setPipelineScrollLocked(false);
         if (lenis && resumeLenis) lenis.start();
       }
     }
@@ -6056,6 +6061,14 @@
       if (!panel || panel.hidden || !isPipelineRunnerActive(panel)) return;
       if (isPipelineEntryPending(panel)) return;
       if (!panel.classList.contains('is-pipeline-pinned')) return;
+
+      const runner = panel.querySelector('[data-pipeline-runner]');
+      const activeDemo = getActivePipelineDemo(runner);
+      if (activeDemo?.inputAutoActive) return;
+
+      const progress = Number(runner?.dataset.pipelineProgress || 0);
+      const inputPhase = activeDemo ? getDemoInputPhase(activeDemo) : 0;
+      if (progress > inputPhase + 0.0001 && progress < 0.999) return;
 
       const pinY = getPipelinePinScrollY(panel);
       if (pinY === null) return;
@@ -6207,7 +6220,7 @@
       }
 
       panel.classList.add('is-pipeline-pinned');
-      document.body.classList.add('is-pipeline-scroll-locked');
+      setPipelineScrollLocked(true);
       runner.classList.add('is-pinned');
       if (lenis) lenis.stop();
 
@@ -6482,7 +6495,7 @@
 
       if (wasOpen) {
         projectListSwitchLock = true;
-        document.body.classList.remove('is-pipeline-scroll-locked');
+        setPipelineScrollLocked(false);
         projectListSticky?.classList.add('is-project-list-locked', 'is-collapse-instant');
       }
 
@@ -6561,6 +6574,27 @@
     });
 
     let lenis = null;
+    let pipelineWheelHandler = null;
+
+    function syncPipelinePinScroll(panel) {
+      if (!panel || !lenis) return;
+
+      const pinY = Number(panel.dataset.pipelinePinY || getPipelinePinScrollY(panel));
+      if (!Number.isFinite(pinY)) return;
+
+      lenis.scrollTo(pinY, { immediate: true, force: true });
+    }
+
+    function getScrollY() {
+      if (!lenis) return window.scrollY;
+
+      const pipelineLocked = document.body.classList.contains('is-pipeline-scroll-locked');
+      if (lenis.isStopped || pipelineLocked) {
+        return window.scrollY || document.documentElement.scrollTop || lenis.scroll;
+      }
+
+      return lenis.scroll;
+    }
 
     const heroSection = document.getElementById('hero-section');
     const heroLines = document.querySelectorAll('.hero-line');
@@ -6572,10 +6606,6 @@
       { maxVw: 18, lerp: 0.12 },
       { maxVw: -24, lerp: 0.15 },
     ];
-
-    function getScrollY() {
-      return lenis ? lenis.scroll : window.scrollY;
-    }
 
     window.addEventListener('resize', () => {
       if (document.body.classList.contains('is-project-open')) {
@@ -6612,6 +6642,21 @@
         easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
         smoothWheel: true,
         wheelMultiplier: 0.9,
+        virtualScroll: (data) => {
+          if (!pipelineWheelHandler) return true;
+          if (pipelineWheelHandler(data.deltaY, data.event)) {
+            data.event.preventDefault();
+            return false;
+          }
+
+          const panel = getActiveProjectPanel();
+          if (panel && !panel.hidden && isPipelineRunnerActive(panel) && lenis?.isStopped) {
+            data.event.preventDefault();
+            return false;
+          }
+
+          return true;
+        },
       });
 
       document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
@@ -7411,7 +7456,7 @@
     function initPipelineHorizontalScroll() {
       let touchStartY = null;
 
-      const handlePipelineWheel = (deltaY, event) => {
+      pipelineWheelHandler = (deltaY, event) => {
         const panel = getActiveProjectPanel();
         if (!panel || panel.hidden || !isPipelineRunnerActive(panel)) return false;
 
@@ -7430,6 +7475,7 @@
 
           if (activeDemo?.applyScrollProgress) {
             applyDemoWheelDelta(runner, activeDemo, deltaY);
+            syncPipelinePinScroll(panel);
           }
 
           return true;
@@ -7437,7 +7483,10 @@
 
         ensurePipelineListCollapsed(panel);
 
-        if (!activeDemo?.applyScrollProgress) return false;
+        if (!activeDemo?.applyScrollProgress) {
+          event?.preventDefault();
+          return true;
+        }
 
         const progress = Number(runner.dataset.pipelineProgress || 0);
 
@@ -7453,13 +7502,14 @@
 
         event?.preventDefault();
         applyDemoWheelDelta(runner, activeDemo, deltaY);
+        syncPipelinePinScroll(panel);
         return true;
       };
 
       document.addEventListener('wheel', (event) => {
-        if (prefersReducedMotion) return;
-        handlePipelineWheel(event.deltaY, event);
-      }, { passive: false });
+        if (prefersReducedMotion || lenis) return;
+        pipelineWheelHandler(event.deltaY, event);
+      }, { passive: false, capture: true });
 
       document.addEventListener('touchstart', (event) => {
         touchStartY = event.touches[0]?.clientY ?? null;
@@ -7472,9 +7522,12 @@
         const deltaY = touchStartY - currentY;
         if (Math.abs(deltaY) < 2) return;
 
-        const handled = handlePipelineWheel(deltaY, event);
-        if (handled) touchStartY = currentY;
-      }, { passive: false });
+        const handled = pipelineWheelHandler(deltaY, event);
+        if (handled) {
+          touchStartY = currentY;
+          event.stopImmediatePropagation();
+        }
+      }, { passive: false, capture: true });
 
       window.addEventListener('resize', () => {
         document.querySelectorAll('.project-detail.is-pipeline-runner-active, .project-detail.is-pipeline-pinned').forEach((panel) => {
