@@ -3187,7 +3187,7 @@
       flex-direction: column;
       gap: 0;
       --dva-prose-width: min(33.333%, 100%);
-      --dva-caption-width: min(66.666%, 100%);
+      --dva-caption-width: min(80%, 100%);
       --dva-module-gap: 1.275rem;
       --dva-section-gap: clamp(2.025rem, 5.25vh, 3rem);
       --dva-wide-inset: 2%;
@@ -3219,6 +3219,12 @@
 
     .dva-detail__copy-block {
       margin-top: var(--dva-module-gap);
+      overflow-x: clip;
+    }
+
+    .dva-detail__copy-block .project-copy-caption {
+      max-width: 100%;
+      text-wrap: normal;
     }
 
     .dva-detail__copy-block .project-copy-caption + .project-copy-caption {
@@ -3226,11 +3232,26 @@
     }
 
     .dva-detail__copy-block .dva-detail__caption-en {
-      text-wrap: pretty;
+      text-wrap: normal;
+    }
+
+    @media (min-width: 1024px) {
+      .dva-detail__step > .dva-detail__copy-block {
+        width: min(100%, 38em);
+      }
+
+      .dva-detail__copy-block .dva-detail__caption-line {
+        white-space: nowrap;
+      }
+
+      .dva-detail__copy-block .dva-detail__caption-cjk .text-cjk {
+        white-space: nowrap;
+      }
     }
 
     .dva-detail__copy-block .dva-detail__caption-line {
       display: block;
+      line-height: var(--leading-large);
     }
 
     .dva-detail__copy-block .dva-detail__caption-cjk {
@@ -3822,7 +3843,7 @@
   />
   <img
     id="project-cover"
-    src="assets/covers/cover-01.png"
+    src="assets/covers/cover-01.png?v=20250629"
     alt=""
     class="pointer-events-none fixed left-0 top-0 z-40 aspect-[3/4] w-[10vw] object-cover"
     aria-hidden="true"
@@ -3965,35 +3986,35 @@
         <ul role="list" class="text-xs leading-[1.1]">
           <li class="grid grid-cols-[2.25rem_1fr] items-center gap-x-3 border-b border-neutral-200 lg:whitespace-nowrap">
             <span class="font-bold tabular-nums text-neutral-900">01</span>
-            <a href="#" data-project="01" data-cover="assets/covers/cover-01.png" class="project-link font-bold text-neutral-900">AI Workflow Study  / 2026</a>
+            <a href="#" data-project="01" data-cover="assets/covers/cover-01.png?v=20250629" class="project-link font-bold text-neutral-900">AI Workflow Study  / 2026</a>
           </li>
           <li class="grid grid-cols-[2.25rem_1fr] items-center gap-x-3 border-b border-neutral-200 lg:whitespace-nowrap">
             <span class="font-bold tabular-nums text-neutral-900">02</span>
-            <a href="#" data-project="02" data-cover="assets/covers/cover-02.png" class="project-link font-bold text-neutral-900">Generative Media Pipelines  / 2026</a>
+            <a href="#" data-project="02" data-cover="assets/covers/cover-02.png?v=20250629" class="project-link font-bold text-neutral-900">Generative Media Pipelines  / 2026</a>
           </li>
           <li class="grid grid-cols-[2.25rem_1fr] items-center gap-x-3 border-b border-neutral-200 lg:whitespace-nowrap">
             <span class="font-bold tabular-nums text-neutral-900">03</span>
-            <a href="#" data-project="03" data-cover="assets/covers/cover-03.png" class="project-link font-bold text-neutral-900">Dynamic Video Automation  / 2025</a>
+            <a href="#" data-project="03" data-cover="assets/covers/cover-03.png?v=20250629" class="project-link font-bold text-neutral-900">Dynamic Video Automation  / 2025</a>
           </li>
           <li class="grid grid-cols-[2.25rem_1fr] items-center gap-x-3 border-b border-neutral-200 lg:whitespace-nowrap">
             <span class="font-bold tabular-nums text-neutral-900">04</span>
-            <a href="#" data-project="04" data-cover="assets/covers/cover-04.png" class="project-link font-bold text-neutral-900">Video Automation  / 2024</a>
+            <a href="#" data-project="04" data-cover="assets/covers/cover-04.png?v=20250629" class="project-link font-bold text-neutral-900">Video Automation  / 2024</a>
           </li>
           <li class="grid grid-cols-[2.25rem_1fr] items-center gap-x-3 border-b border-neutral-200 lg:whitespace-nowrap">
             <span class="font-bold tabular-nums text-neutral-900">05</span>
-            <a href="#" data-project="05" data-cover="assets/covers/cover-05.png" class="project-link font-bold text-neutral-900">Visual Presets  / 2024</a>
+            <a href="#" data-project="05" data-cover="assets/covers/cover-05.png?v=20250629" class="project-link font-bold text-neutral-900">Visual Presets  / 2024</a>
           </li>
           <li class="grid grid-cols-[2.25rem_1fr] items-center gap-x-3 border-b border-neutral-200 lg:whitespace-nowrap">
             <span class="font-bold tabular-nums text-neutral-900">06</span>
-            <a href="#" data-project="06" data-cover="assets/covers/cover-06.png" class="project-link font-bold text-neutral-900">Redmi Note 13 Launch Event  / 2024</a>
+            <a href="#" data-project="06" data-cover="assets/covers/cover-06.png?v=20250629" class="project-link font-bold text-neutral-900">Redmi Note 13 Launch Event  / 2024</a>
           </li>
           <li class="grid grid-cols-[2.25rem_1fr] items-center gap-x-3 border-b border-neutral-200 lg:whitespace-nowrap">
             <span class="font-bold tabular-nums text-neutral-900">07</span>
-            <a href="#" data-project="07" data-cover="assets/covers/cover-07.png" class="project-link font-bold text-neutral-900">Redmi Note 12 Launch Event  / 2023</a>
+            <a href="#" data-project="07" data-cover="assets/covers/cover-07.png?v=20250629" class="project-link font-bold text-neutral-900">Redmi Note 12 Launch Event  / 2023</a>
           </li>
           <li class="grid grid-cols-[2.25rem_1fr] items-center gap-x-3 border-b border-neutral-200 lg:whitespace-nowrap">
             <span class="font-bold tabular-nums text-neutral-900">08</span>
-            <a href="#" data-project="08" data-cover="assets/covers/cover-08.png" class="project-link font-bold text-neutral-900">Experimental Stuff</a>
+            <a href="#" data-project="08" data-cover="assets/covers/cover-08.png?v=20250629" class="project-link font-bold text-neutral-900">Experimental Stuff</a>
           </li>
         </ul>
       </div>
@@ -4627,7 +4648,7 @@
             <section class="dva-detail__step" aria-labelledby="dva-step-background">
               <p class="project-copy-label" id="dva-step-background" data-dva-reveal>01 / Background &amp; Challenge</p>
               <div class="dva-detail__copy-block" data-dva-reveal>
-                <p class="project-copy-caption dva-detail__caption-en"><span class="dva-detail__caption-line">Eliminating post-production barriers; enabling split-second packaging</span><span class="dva-detail__caption-line">for talking-head videos via highly structured industry templates and intelligent subtitles.</span></p>
+                <p class="project-copy-caption dva-detail__caption-en"><span class="dva-detail__caption-line">Eliminating post-production barriers; enabling split-second packaging for talking-head videos</span><span class="dva-detail__caption-line">via highly structured industry templates and intelligent subtitles.</span></p>
                 <p class="project-copy-caption dva-detail__caption-cjk"><span class="text-cjk">破除传统后期高门槛，通过高度结构化的行业模板与智能化字幕，实现口播视频秒级包装。</span></p>
               </div>
               <div class="dva-detail__vconnector" data-dva-reveal aria-hidden="true"></div>
@@ -5200,19 +5221,31 @@
 
     function pinCollapsedListScrollThreshold() {
       if (!projectListSticky?.classList.contains('is-scrolled')) return;
-      collapseScrollY = getScrollY() - 2;
+      collapseScrollY = Math.max(0, getScrollY() - 2);
+    }
+
+    function lockCollapsedListForSwitch() {
+      if (!projectListSticky) return;
+      projectListSticky.classList.add('is-scrolled', 'is-collapse-instant');
+      void projectListSticky.offsetHeight;
+      pinCollapsedListScrollThreshold();
     }
 
     function releaseListCollapseInstant() {
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
-          projectListSticky?.classList.remove('is-collapse-instant');
           projectListSwitchLock = false;
-          if (preserveCollapsedListOnSwitch) {
-            pinCollapsedListScrollThreshold();
-          } else {
-            remeasureProjectListThreshold();
+          const shouldStayCollapsed = preserveCollapsedListOnSwitch;
+          if (shouldStayCollapsed) {
+            lockCollapsedListForSwitch();
           }
+          preserveCollapsedListOnSwitch = false;
+          requestAnimationFrame(() => {
+            projectListSticky?.classList.remove('is-collapse-instant');
+            if (!shouldStayCollapsed) {
+              remeasureProjectListThreshold();
+            }
+          });
         });
       });
     }
@@ -5432,11 +5465,11 @@
       }
       if (preserveListCollapse) {
         projectListSticky.classList.add('is-scrolled');
-        pinCollapsedListScrollThreshold();
+        lockCollapsedListForSwitch();
       }
       projectSwitchScrollLock = false;
 
-      if (!projectListSwitchLock) {
+      if (!projectListSwitchLock && !preserveCollapsedListOnSwitch) {
         scheduleProjectListThresholdMeasure();
       }
 
@@ -5573,7 +5606,7 @@
       if (projectDetails.classList.contains('is-project-switching')) return;
       if (projectListSwitchLock) return;
       if (preserveCollapsedListOnSwitch) {
-        pinCollapsedListScrollThreshold();
+        lockCollapsedListForSwitch();
         return;
       }
 
@@ -5586,9 +5619,9 @@
       const listHeight = keepCollapsed && projectListSticky.classList.contains('is-scrolled')
         ? projectListSticky.offsetHeight
         : (() => {
+          projectListSticky.classList.add('is-collapse-instant');
           const wasScrolled = projectListSticky.classList.contains('is-scrolled');
           if (!wasScrolled) projectListSticky.classList.add('is-scrolled');
-          projectListSticky.classList.add('is-collapse-instant');
           void projectListSticky.offsetHeight;
           const height = projectListSticky.offsetHeight;
           projectListSticky.classList.remove('is-collapse-instant');
@@ -5619,7 +5652,7 @@
     function updateProjectListScrollState() {
       if (!projectListSticky) return;
       if (projectSwitchScrollLock) return;
-      if (projectListSwitchLock) return;
+      if (projectListSwitchLock || preserveCollapsedListOnSwitch) return;
       if (projectListSticky.classList.contains('is-collapse-instant')) return;
       if (projectDetails?.classList.contains('is-project-switching')) return;
 
@@ -5664,12 +5697,9 @@
       if (shouldCollapse === isScrolled) return;
 
       if (shouldCollapse) {
-        preserveCollapsedListOnSwitch = false;
         projectListSticky.classList.add('is-scrolled');
         return;
       }
-
-      if (preserveCollapsedListOnSwitch) return;
 
       projectListSticky.classList.remove('is-scrolled');
       scheduleProjectListThresholdMeasure();
@@ -5683,6 +5713,11 @@
 
     function getCollapsedProjectListHeight() {
       if (!projectListSticky) return 0;
+
+      if (preserveCollapsedListOnSwitch || projectListSwitchLock) {
+        lockCollapsedListForSwitch();
+        return projectListSticky.offsetHeight;
+      }
 
       const wasScrolled = projectListSticky.classList.contains('is-scrolled');
       if (!wasScrolled) projectListSticky.classList.add('is-scrolled');
@@ -6208,7 +6243,7 @@
           projectSwitchTimer = null;
           resetProjectDetailReveal(incomingPanel);
           updateProjectDetailReveal();
-          if (!projectListSwitchLock) {
+          if (!projectListSwitchLock && !preserveCollapsedListOnSwitch) {
             scheduleProjectListThresholdMeasure();
           }
           finishOpen();
@@ -6289,9 +6324,10 @@
       if (wasOpen) {
         projectListSwitchLock = true;
         preserveCollapsedListOnSwitch = listWasCollapsed;
-        projectListSticky?.classList.add('is-collapse-instant');
         if (listWasCollapsed) {
-          projectListSticky?.classList.add('is-scrolled');
+          lockCollapsedListForSwitch();
+        } else {
+          projectListSticky?.classList.add('is-collapse-instant');
         }
       }
 
