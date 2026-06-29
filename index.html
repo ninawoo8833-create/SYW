@@ -534,6 +534,8 @@
     .project-detail {
       padding-top: calc(0.75rem * 1.5 * 5);
       opacity: 1;
+      min-width: 0;
+      max-width: 100%;
       transition: opacity 0.4s cubic-bezier(0.22, 1, 0.36, 1);
     }
 
@@ -615,6 +617,9 @@
     #project-details {
       padding-left: 2px;
       position: relative;
+      min-width: 0;
+      max-width: 100%;
+      overflow-x: clip;
     }
 
     .project-detail .project-copy,
@@ -3176,11 +3181,13 @@
     .dva-detail {
       width: 100%;
       max-width: 100%;
+      min-width: 0;
       margin-inline: auto;
       display: flex;
       flex-direction: column;
       gap: 0;
       --dva-prose-width: min(33.333%, 100%);
+      --dva-caption-width: min(66.666%, 100%);
       --dva-module-gap: 1.275rem;
       --dva-section-gap: clamp(2.025rem, 5.25vh, 3rem);
       --dva-wide-inset: 2%;
@@ -3195,12 +3202,18 @@
     }
 
     .dva-detail__step > .project-copy-label,
-    .dva-detail__step > .dva-detail__copy-block,
     .dva-detail__step > .project-copy-body,
     .dva-detail__step > .dva-detail__copy,
-    .dva-detail__step > .dva-kinetic__intro {
+    .dva-detail__step > .dva-kinetic__intro:not(.dva-detail__copy-block) {
       width: var(--dva-prose-width);
       max-width: 100%;
+      margin-inline: auto;
+    }
+
+    .dva-detail__step > .dva-detail__copy-block {
+      width: var(--dva-caption-width);
+      max-width: 100%;
+      min-width: 0;
       margin-inline: auto;
     }
 
@@ -3213,27 +3226,20 @@
     }
 
     .dva-detail__copy-block .dva-detail__caption-en {
-      max-width: 100%;
-      text-wrap: balance;
+      text-wrap: pretty;
+    }
+
+    .dva-detail__copy-block .dva-detail__caption-line {
+      display: block;
     }
 
     .dva-detail__copy-block .dva-detail__caption-cjk {
       margin-top: 0.75rem;
-      font-size: clamp(0.58rem, 1.45vw, 0.75rem);
-      line-height: 1.15;
-      letter-spacing: 0.01em;
-      white-space: nowrap;
-      max-width: 100%;
     }
 
     .dva-detail__copy-block .dva-detail__caption-cjk .text-cjk {
-      font-size: 1em;
-    }
-
-    @media (max-width: 1023px) {
-      .dva-detail__copy-block .dva-detail__caption-cjk {
-        font-size: clamp(0.5rem, 2.65vw, 0.68rem);
-      }
+      display: block;
+      font-size: calc(1em * var(--text-cjk-scale));
     }
 
     .dva-detail__copy {
@@ -3680,6 +3686,8 @@
       #layout-shell.is-project-open > aside {
         flex: 0 0 70%;
         width: 70%;
+        min-width: 0;
+        overflow-x: clip;
       }
 
       #footer-aside-spacer {
@@ -4619,7 +4627,7 @@
             <section class="dva-detail__step" aria-labelledby="dva-step-background">
               <p class="project-copy-label" id="dva-step-background" data-dva-reveal>01 / Background &amp; Challenge</p>
               <div class="dva-detail__copy-block" data-dva-reveal>
-                <p class="project-copy-caption dva-detail__caption-en">Eliminating post-production barriers; enabling split-second packaging for talking-head videos<br>via highly structured industry templates and intelligent subtitles.</p>
+                <p class="project-copy-caption dva-detail__caption-en"><span class="dva-detail__caption-line">Eliminating post-production barriers; enabling split-second packaging</span><span class="dva-detail__caption-line">for talking-head videos via highly structured industry templates and intelligent subtitles.</span></p>
                 <p class="project-copy-caption dva-detail__caption-cjk"><span class="text-cjk">破除传统后期高门槛，通过高度结构化的行业模板与智能化字幕，实现口播视频秒级包装。</span></p>
               </div>
               <div class="dva-detail__vconnector" data-dva-reveal aria-hidden="true"></div>
@@ -4628,7 +4636,7 @@
             <section class="dva-detail__step" aria-labelledby="dva-step-matrix">
               <p class="project-copy-label" id="dva-step-matrix" data-dva-reveal>02 / Industry-Specific Matrix</p>
               <div class="dva-detail__copy-block" data-dva-reveal>
-                <p class="project-copy-caption dva-detail__caption-en">Mapping a visual preset matrix across the dual axes of &ldquo;Stylization&rdquo; and &ldquo;Professionalism,&rdquo;<br>tailored to distinct commercial narratives.</p>
+                <p class="project-copy-caption dva-detail__caption-en"><span class="dva-detail__caption-line">Mapping a visual preset matrix across the dual axes of &ldquo;Stylization&rdquo;</span><span class="dva-detail__caption-line">and &ldquo;Professionalism,&rdquo; tailored to distinct commercial narratives.</span></p>
                 <p class="project-copy-caption dva-detail__caption-cjk"><span class="text-cjk">洞察不同垂直行业的商业叙事逻辑，构建横跨&ldquo;风格化&rdquo;与&ldquo;专业性&rdquo;双轴的视觉预设矩阵。</span></p>
               </div>
               <div class="dva-matrix">
@@ -4694,7 +4702,7 @@
             <section class="dva-detail__step" aria-labelledby="dva-step-kinetic">
               <p class="project-copy-label" id="dva-step-kinetic" data-dva-reveal>03 / Scene-Oriented Kinetic Visual System</p>
               <div class="dva-detail__copy-block dva-kinetic__intro" data-dva-reveal>
-                <p class="project-copy-caption dva-detail__caption-en">Focusing on talking-head scenarios, leveraging<br>audio-driven kinetic typography and smart assets</p>
+                <p class="project-copy-caption dva-detail__caption-en"><span class="dva-detail__caption-line">Focusing on talking-head scenarios, leveraging</span><span class="dva-detail__caption-line">audio-driven kinetic typography and smart assets</span></p>
                 <p class="project-copy-caption dva-detail__caption-cjk"><span class="text-cjk">聚焦口播场景，以音视同构的动力学字效与智能组件降低后期门槛，全面释放泛视频创作生产力。</span></p>
               </div>
               <div class="dva-cases">
@@ -5148,6 +5156,7 @@
     let allowProjectListCollapse = false;
     let projectSwitchScrollLock = false;
     let projectListSwitchLock = false;
+    let preserveCollapsedListOnSwitch = false;
     let projectOverviewResizeObserver = null;
 
     document.querySelectorAll('.project-detail').forEach((panel) => {
@@ -5189,12 +5198,21 @@
       return document.querySelector(`.project-detail[data-project="${projectId}"]`);
     }
 
+    function pinCollapsedListScrollThreshold() {
+      if (!projectListSticky?.classList.contains('is-scrolled')) return;
+      collapseScrollY = getScrollY() - 2;
+    }
+
     function releaseListCollapseInstant() {
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
           projectListSticky?.classList.remove('is-collapse-instant');
           projectListSwitchLock = false;
-          scheduleProjectListThresholdMeasure();
+          if (preserveCollapsedListOnSwitch) {
+            pinCollapsedListScrollThreshold();
+          } else {
+            remeasureProjectListThreshold();
+          }
         });
       });
     }
@@ -5350,6 +5368,7 @@
       projectListSticky?.classList.remove('is-scrolled');
       projectListSticky?.classList.remove('is-collapse-instant');
       projectListSwitchLock = false;
+      preserveCollapsedListOnSwitch = false;
       collapseScrollY = null;
       lastPipelineDetailScrollY = 0;
       allowProjectListCollapse = false;
@@ -5413,6 +5432,7 @@
       }
       if (preserveListCollapse) {
         projectListSticky.classList.add('is-scrolled');
+        pinCollapsedListScrollThreshold();
       }
       projectSwitchScrollLock = false;
 
@@ -5463,7 +5483,7 @@
           requestAnimationFrame(() => {
             scrollToActiveProjectOverview({
               immediate: true,
-              observeResize: true,
+              observeResize: false,
               preserveListCollapse,
               keepCollapseInstant,
             });
@@ -5552,6 +5572,10 @@
       if (!projectListSticky || !projectDetails || projectDetails.classList.contains('hidden')) return;
       if (projectDetails.classList.contains('is-project-switching')) return;
       if (projectListSwitchLock) return;
+      if (preserveCollapsedListOnSwitch) {
+        pinCollapsedListScrollThreshold();
+        return;
+      }
 
       const wasCollapsed = projectListSticky.classList.contains('is-scrolled');
       const keepCollapsed = shouldKeepProjectListCollapsed() || wasCollapsed;
@@ -5583,6 +5607,7 @@
 
     function scheduleProjectListThresholdMeasure() {
       if (projectListSwitchLock) return;
+      if (preserveCollapsedListOnSwitch) return;
 
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
@@ -5639,9 +5664,12 @@
       if (shouldCollapse === isScrolled) return;
 
       if (shouldCollapse) {
+        preserveCollapsedListOnSwitch = false;
         projectListSticky.classList.add('is-scrolled');
         return;
       }
+
+      if (preserveCollapsedListOnSwitch) return;
 
       projectListSticky.classList.remove('is-scrolled');
       scheduleProjectListThresholdMeasure();
@@ -6260,6 +6288,7 @@
 
       if (wasOpen) {
         projectListSwitchLock = true;
+        preserveCollapsedListOnSwitch = listWasCollapsed;
         projectListSticky?.classList.add('is-collapse-instant');
         if (listWasCollapsed) {
           projectListSticky?.classList.add('is-scrolled');
@@ -6287,7 +6316,7 @@
           setTimeout(() => {
             if (session !== openProjectSession) return;
             releaseListCollapseInstant();
-          }, 900);
+          }, 1200);
         } else {
           resetProjectListScrollState();
           scheduleScrollToActiveProjectOverview({ afterLayout: true });
