@@ -3044,6 +3044,7 @@
       --dva-q-x-span: 88%;
       --dva-q-y-bottom: 90%;
       --dva-q-y-span: 84%;
+      --pipeline-node-fill: #EAE9E0;
     }
 
     .dva-matrix__cross-h,
@@ -3104,6 +3105,12 @@
       justify-content: center;
       width: calc(var(--dva-node-base) * var(--dva-size, 1));
       aspect-ratio: 1;
+      z-index: 1;
+      cursor: default;
+    }
+
+    .dva-matrix__node.is-active {
+      z-index: 3;
     }
 
     .dva-matrix__node-circle {
@@ -3113,6 +3120,83 @@
       border-radius: 50%;
       background: transparent;
       pointer-events: none;
+      transition: background 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .dva-matrix__node.is-active .dva-matrix__node-circle {
+      background: var(--pipeline-node-fill, #EAE9E0);
+    }
+
+    .dva-matrix__preview {
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 38;
+      pointer-events: none;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .dva-matrix__preview.is-visible {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .dva-matrix__preview-rail {
+      display: flex;
+      flex-direction: row;
+      align-items: flex-end;
+      gap: 0.45rem;
+    }
+
+    .dva-matrix__preview-frame {
+      flex: 0 0 auto;
+      width: 8vw;
+      min-width: 4.35rem;
+      max-width: 6.5rem;
+      aspect-ratio: 3 / 4;
+      border: 1px solid rgb(229 229 229);
+      opacity: 0;
+      transform: translate3d(-0.35rem, 0, 0);
+      transition:
+        opacity 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+        transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+      transition-delay: 0ms;
+      background:
+        linear-gradient(145deg, rgb(245 245 245) 0%, rgb(234 233 224) 52%, rgb(245 245 245) 100%);
+    }
+
+    .dva-matrix__preview-frame:nth-child(2) {
+      background:
+        linear-gradient(145deg, rgb(240 240 240) 0%, rgb(228 227 218) 52%, rgb(242 242 242) 100%);
+    }
+
+    .dva-matrix__preview-frame:nth-child(3) {
+      background:
+        linear-gradient(145deg, rgb(235 235 235) 0%, rgb(222 221 212) 52%, rgb(238 238 238) 100%);
+    }
+
+    .dva-matrix__preview-frame:nth-child(4) {
+      background:
+        linear-gradient(145deg, rgb(230 230 230) 0%, rgb(218 217 208) 52%, rgb(234 234 234) 100%);
+    }
+
+    .dva-matrix__preview-frame:nth-child(5) {
+      background:
+        linear-gradient(145deg, rgb(225 225 225) 0%, rgb(214 213 204) 52%, rgb(230 230 230) 100%);
+    }
+
+    .dva-matrix__preview-frame.is-visible {
+      opacity: 1;
+      transform: translate3d(0, 0, 0);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .dva-matrix__preview-frame {
+        transform: none;
+        transition: opacity 0.2s ease;
+      }
     }
 
     .dva-matrix__node-label {
@@ -3465,6 +3549,9 @@
     class="pointer-events-none fixed left-0 top-0 z-40 aspect-[3/4] w-[10vw] object-cover"
     aria-hidden="true"
   />
+  <div id="dva-matrix-preview" class="dva-matrix__preview" hidden aria-hidden="true">
+    <div class="dva-matrix__preview-rail"></div>
+  </div>
 
   <!-- Header -->
   <header class="border-b border-neutral-200">
@@ -4281,39 +4368,39 @@
                   <span class="dva-matrix__cross-h" data-dva-reveal aria-hidden="true"></span>
                   <span class="dva-matrix__cross-v" data-dva-reveal aria-hidden="true"></span>
 
-                  <div class="dva-matrix__node" style="--dva-qx: 0.9; --dva-qy: 8.3; --dva-size: 0.6591;" data-dva-reveal data-dva-reveal-order="1">
+                  <div class="dva-matrix__node" style="--dva-qx: 0.9; --dva-qy: 8.3; --dva-size: 0.6591;" data-dva-preview-count="3" data-dva-reveal data-dva-reveal-order="1">
                     <span class="dva-matrix__node-circle" aria-hidden="true"></span>
                     <p class="dva-matrix__node-label">美妆母婴</p>
                   </div>
-                  <div class="dva-matrix__node" style="--dva-qx: 1.8; --dva-qy: 8.8; --dva-size: 1;" data-dva-reveal data-dva-reveal-order="2">
+                  <div class="dva-matrix__node" style="--dva-qx: 1.8; --dva-qy: 8.8; --dva-size: 1;" data-dva-preview-count="5" data-dva-reveal data-dva-reveal-order="2">
                     <span class="dva-matrix__node-circle" aria-hidden="true"></span>
                     <p class="dva-matrix__node-label">美业美学</p>
                   </div>
-                  <div class="dva-matrix__node" style="--dva-qx: 2.7; --dva-qy: 6.1; --dva-size: 0.7787;" data-dva-reveal data-dva-reveal-order="3">
+                  <div class="dva-matrix__node" style="--dva-qx: 2.7; --dva-qy: 6.1; --dva-size: 0.7787;" data-dva-preview-count="4" data-dva-reveal data-dva-reveal-order="3">
                     <span class="dva-matrix__node-circle" aria-hidden="true"></span>
                     <p class="dva-matrix__node-label">门店引流</p>
                   </div>
-                  <div class="dva-matrix__node" style="--dva-qx: 3.6; --dva-qy: 7.9; --dva-size: 0.7164;" data-dva-reveal data-dva-reveal-order="4">
+                  <div class="dva-matrix__node" style="--dva-qx: 3.6; --dva-qy: 7.9; --dva-size: 0.7164;" data-dva-preview-count="4" data-dva-reveal data-dva-reveal-order="4">
                     <span class="dva-matrix__node-circle" aria-hidden="true"></span>
                     <p class="dva-matrix__node-label">电商带货</p>
                   </div>
-                  <div class="dva-matrix__node" style="--dva-qx: 7.6; --dva-qy: 5.7; --dva-size: 0.92;" data-dva-reveal data-dva-reveal-order="5">
+                  <div class="dva-matrix__node" style="--dva-qx: 7.6; --dva-qy: 5.7; --dva-size: 0.92;" data-dva-preview-count="3" data-dva-reveal data-dva-reveal-order="5">
                     <span class="dva-matrix__node-circle" aria-hidden="true"></span>
                     <p class="dva-matrix__node-label">保险金融</p>
                   </div>
-                  <div class="dva-matrix__node" style="--dva-qx: 5.5; --dva-qy: 6.8; --dva-size: 0.8464;" data-dva-reveal data-dva-reveal-order="6">
+                  <div class="dva-matrix__node" style="--dva-qx: 5.5; --dva-qy: 6.8; --dva-size: 0.8464;" data-dva-preview-count="4" data-dva-reveal data-dva-reveal-order="6">
                     <span class="dva-matrix__node-circle" aria-hidden="true"></span>
                     <p class="dva-matrix__node-label">教培知识</p>
                   </div>
-                  <div class="dva-matrix__node" style="--dva-qx: 6.4; --dva-qy: 3.8; --dva-size: 0.5578;" data-dva-reveal data-dva-reveal-order="7">
+                  <div class="dva-matrix__node" style="--dva-qx: 6.4; --dva-qy: 3.8; --dva-size: 0.5578;" data-dva-preview-count="2" data-dva-reveal data-dva-reveal-order="7">
                     <span class="dva-matrix__node-circle" aria-hidden="true"></span>
                     <p class="dva-matrix__node-label">科技媒体</p>
                   </div>
-                  <div class="dva-matrix__node" style="--dva-qx: 9.3; --dva-qy: 2.6; --dva-size: 0.5132;" data-dva-reveal data-dva-reveal-order="8">
+                  <div class="dva-matrix__node" style="--dva-qx: 9.3; --dva-qy: 2.6; --dva-size: 0.5132;" data-dva-preview-count="3" data-dva-reveal data-dva-reveal-order="8">
                     <span class="dva-matrix__node-circle" aria-hidden="true"></span>
                     <p class="dva-matrix__node-label">新闻党政</p>
                   </div>
-                  <div class="dva-matrix__node" style="--dva-qx: 1; --dva-qy: 9.5; --dva-size: 0.6064;" data-dva-reveal data-dva-reveal-order="9">
+                  <div class="dva-matrix__node" style="--dva-qx: 1; --dva-qy: 9.5; --dva-size: 0.6064;" data-dva-preview-count="3" data-dva-reveal data-dva-reveal-order="9">
                     <span class="dva-matrix__node-circle" aria-hidden="true"></span>
                     <p class="dva-matrix__node-label">日常分享</p>
                   </div>
@@ -4605,6 +4692,10 @@
     let coverX = 0;
     let coverY = 0;
     let projectCoverActive = false;
+    let dvaMatrixPreviewActive = false;
+    let dvaMatrixPreviewX = 0;
+    let dvaMatrixPreviewY = 0;
+    let dvaMatrixActiveNode = null;
 
     function updateCursor() {
       if (!cursor) return;
@@ -4630,6 +4721,20 @@
 
       projectCover.style.left = `${coverX}px`;
       projectCover.style.top = `${coverY}px`;
+    }
+
+    function updateDvaMatrixPreview() {
+      const preview = document.getElementById('dva-matrix-preview');
+      if (!preview || !dvaMatrixPreviewActive) return;
+
+      const targetX = mouseX + coverOffset;
+      const targetY = mouseY + coverOffset;
+
+      dvaMatrixPreviewX += (targetX - dvaMatrixPreviewX) * coverLerp;
+      dvaMatrixPreviewY += (targetY - dvaMatrixPreviewY) * coverLerp;
+
+      preview.style.left = `${dvaMatrixPreviewX}px`;
+      preview.style.top = `${dvaMatrixPreviewY}px`;
     }
 
     if (hasFinePointer && cursor) {
@@ -5401,6 +5506,7 @@
       resetAllPipelineHubs();
       resetProjectDetailReveal();
       resetDvaDetailReveal();
+      resetDvaMatrixPreview();
       projectDetails.classList.remove('hidden');
       detailPanels.forEach((panel) => {
         panel.hidden = panel.dataset.project !== projectId;
@@ -5417,6 +5523,7 @@
       resetProjectListScrollState();
       resetProjectDetailReveal();
       resetDvaDetailReveal();
+      resetDvaMatrixPreview();
     }
 
     if (projectCover && projectLinks.length && hasFinePointer) {
@@ -5597,6 +5704,7 @@
       updateProjectListScrollState();
       updateProjectDetailReveal();
       updateDvaDetailReveal();
+      updateDvaMatrixPreview();
       updatePipelineScrollReveal();
       lockPipelineScrollPin();
       if (hasFinePointer && cursor) updateCursor();
@@ -8224,6 +8332,91 @@ Dialogue: Mona Lisa: "Fine, keep your fizzy water." Girl: "It complements my pea
       postCommand('playVideo');
     }
 
+    function resetDvaMatrixPreview() {
+      const preview = document.getElementById('dva-matrix-preview');
+      const rail = preview?.querySelector('.dva-matrix__preview-rail');
+
+      dvaMatrixPreviewActive = false;
+
+      if (preview) {
+        preview.classList.remove('is-visible');
+        preview.hidden = true;
+      }
+
+      if (rail) rail.innerHTML = '';
+
+      if (dvaMatrixActiveNode) {
+        dvaMatrixActiveNode.classList.remove('is-active');
+        dvaMatrixActiveNode = null;
+      }
+    }
+
+    function initDvaMatrixHover() {
+      if (!hasFinePointer) return;
+
+      const preview = document.getElementById('dva-matrix-preview');
+      const rail = preview?.querySelector('.dva-matrix__preview-rail');
+      const plot = document.querySelector('.dva-matrix__plot');
+      const nodes = document.querySelectorAll('.dva-matrix__node[data-dva-preview-count]');
+
+      if (!preview || !rail || !plot || !nodes.length) return;
+
+      const revealPreviewFrames = () => {
+        const frames = rail.querySelectorAll('.dva-matrix__preview-frame');
+        if (!frames.length) return;
+
+        if (prefersReducedMotion) {
+          frames.forEach((frame) => frame.classList.add('is-visible'));
+          return;
+        }
+
+        frames.forEach((frame, index) => {
+          frame.classList.remove('is-visible');
+          frame.style.transitionDelay = `${index * 90}ms`;
+        });
+
+        requestAnimationFrame(() => {
+          frames.forEach((frame) => frame.classList.add('is-visible'));
+        });
+      };
+
+      const showPreview = (node) => {
+        const count = clamp(Number(node.dataset.dvaPreviewCount) || 3, 2, 5);
+
+        rail.innerHTML = '';
+        for (let index = 0; index < count; index += 1) {
+          const frame = document.createElement('div');
+          frame.className = 'dva-matrix__preview-frame';
+          frame.setAttribute('aria-hidden', 'true');
+          rail.appendChild(frame);
+        }
+
+        preview.hidden = false;
+        preview.classList.add('is-visible');
+        dvaMatrixPreviewActive = true;
+        dvaMatrixPreviewX = mouseX + coverOffset;
+        dvaMatrixPreviewY = mouseY + coverOffset;
+        preview.style.left = `${dvaMatrixPreviewX}px`;
+        preview.style.top = `${dvaMatrixPreviewY}px`;
+
+        revealPreviewFrames();
+      };
+
+      nodes.forEach((node) => {
+        node.addEventListener('mouseenter', () => {
+          if (dvaMatrixActiveNode && dvaMatrixActiveNode !== node) {
+            dvaMatrixActiveNode.classList.remove('is-active');
+          }
+
+          dvaMatrixActiveNode = node;
+          node.classList.add('is-active');
+          showPreview(node);
+        });
+      });
+
+      plot.addEventListener('mouseleave', resetDvaMatrixPreview);
+    }
+
     function initYouTubeEmbeds() {
       const pageOrigin = window.location.origin && window.location.origin !== 'null'
         ? window.location.origin
@@ -8265,6 +8458,7 @@ Dialogue: Mona Lisa: "Fine, keep your fizzy water." Girl: "It complements my pea
     initPipelineHub();
     initPipelineHorizontalScroll();
     initMinimalVideoPlayers();
+    initDvaMatrixHover();
     initYouTubeEmbeds();
 
     requestAnimationFrame(raf);
