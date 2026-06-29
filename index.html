@@ -3617,11 +3617,13 @@
     }
 
     .dva-detail__text-line[data-dva-reveal] {
+      opacity: 0;
+      transform: translate3d(0, 1.25rem, 0);
       transition: none;
       will-change: opacity, transform;
     }
 
-    [data-dva-detail] .dva-detail__copy-block .project-copy-caption {
+    #project-details [data-dva-detail] .dva-detail__copy-block .project-copy-caption {
       opacity: 1;
       transform: none;
     }
@@ -5209,7 +5211,11 @@
     let allowProjectListCollapse = false;
     let projectSwitchScrollLock = false;
     let projectListSwitchLock = false;
+    let projectListInteractionLock = false;
     let projectOverviewResizeObserver = null;
+
+    const PROJECT_OPEN_SCROLL_DURATION = 1.15;
+    const projectOpenScrollEase = (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t));
 
     document.querySelectorAll('.project-detail').forEach((panel) => {
       [...panel.children].forEach((child) => {
@@ -5318,6 +5324,16 @@
       if (panel.classList.contains('is-pipeline-pinned') || isPipelineRunnerActive(panel)) {
         return true;
       }
+
+      const isCollapsed = projectListSticky?.classList.contains('is-scrolled');
+
+      if (isCollapsed) {
+        if (collapseScrollY === null) {
+          collapseScrollY = Math.max(0, getScrollY() - 2);
+        }
+        return getScrollY() > collapseScrollY + 1;
+      }
+
       if (!canFitExpandedProjectList()) return true;
       if (collapseScrollY === null) refreshCollapseScrollThreshold(panel);
       if (collapseScrollY === null) return false;
@@ -5333,11 +5349,19 @@
       if (shouldCollapse === isCollapsed) return;
 
       if (instant) projectListSticky.classList.add('is-collapse-instant');
-      projectListSticky.classList.toggle('is-scrolled', shouldCollapse);
-      void projectListSticky.offsetHeight;
-      if (shouldCollapse !== isCollapsed) {
-        scheduleProjectListThresholdMeasure();
+
+      if (shouldCollapse) {
+        projectListSticky.classList.add('is-scrolled');
+        collapseScrollY = Math.max(0, getScrollY() - 2);
+      } else {
+        projectListSticky.classList.remove('is-scrolled');
+        requestAnimationFrame(() => {
+          refreshCollapseScrollThreshold();
+        });
       }
+
+      void projectListSticky.offsetHeight;
+
       if (instant && !keepInstant) {
         requestAnimationFrame(() => {
           if (projectListSticky?.classList.contains('is-project-list-locked')) return;
@@ -5346,67 +5370,64 @@
       }
     }
 
-    function resetToProjectOpenPosition() {
-      if (!projectListSticky || !document.body.classList.contains('is-project-open')) return;
+    function smoothScrollToProjectOpen(onComplete) {
+      if (!projectListSticky || !document.body.classList.contains('is-project-open')) {
+        onComplete?.();
+        return;
+      }
 
       projectSwitchScrollLock = true;
+      projectListInteractionLock = true;
       document.body.classList.remove('is-pipeline-scroll-locked');
       projectListSticky.classList.add('is-collapse-instant');
-      projectListSticky.classList.remove('is-scrolled');
-      void projectListSticky.offsetHeight;
 
-      const applyScrollTop = () => {
+      const settle = () => {
+        projectSwitchScrollLock = false;
+        projectListInteractionLock = false;
+
+        projectListSticky.classList.add('is-collapse-instant');
+        projectListSticky.classList.remove('is-scrolled');
+        void projectListSticky.offsetHeight;
+        collapseScrollY = computeCollapseScrollThreshold();
+        requestAnimationFrame(() => {
+          projectListSticky?.classList.remove('is-collapse-instant');
+        });
+
+        onComplete?.();
+      };
+
+      if (prefersReducedMotion || !lenis) {
         window.scrollTo(0, 0);
         document.documentElement.scrollTop = 0;
         document.body.scrollTop = 0;
+        settle();
+        return;
+      }
 
-        if (lenis) {
-          lenis.scrollTo(0, { immediate: true, force: true });
-          lenis.raf(performance.now());
-        }
-      };
-
-      if (lenis) lenis.stop();
-      applyScrollTop();
-
-      projectSwitchScrollLock = false;
-      collapseScrollY = computeCollapseScrollThreshold();
-
-      requestAnimationFrame(applyScrollTop);
+      lenis.start();
+      lenis.scrollTo(0, {
+        duration: PROJECT_OPEN_SCROLL_DURATION,
+        easing: projectOpenScrollEase,
+        force: true,
+        onComplete: settle,
+      });
     }
 
-    function finishProjectOpenLayout(onSettled) {
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          resetToProjectOpenPosition();
+    function finishProjectOpenLayout() {
+      const panel = getActiveProjectPanel();
 
-          const panel = getActiveProjectPanel();
-          resetProjectDetailReveal(panel);
-          updateProjectDetailReveal();
+      smoothScrollToProjectOpen(() => {
+        projectListSticky?.classList.remove('is-project-list-locked');
+        projectListSwitchLock = false;
 
-          if (panel?.dataset.project === '03') {
-            updateDvaDetailReveal();
-          }
+        resetProjectDetailReveal(panel);
+        enableProjectListCollapse();
+        applyProjectListCollapseState();
 
-          projectListSticky?.classList.remove('is-project-list-locked');
-          projectListSwitchLock = false;
+        updateProjectDetailReveal();
+        updateDvaDetailReveal();
 
-          requestAnimationFrame(() => {
-            projectListSticky?.classList.remove('is-collapse-instant');
-            updateProjectDetailReveal();
-            if (panel?.dataset.project === '03') {
-              updateDvaDetailReveal();
-            }
-            if (lenis) lenis.start();
-            enableProjectListCollapse();
-            refreshCollapseScrollThreshold(panel);
-            applyProjectListCollapseState({ instant: true });
-            requestAnimationFrame(() => {
-              projectListSticky?.classList.remove('is-collapse-instant');
-            });
-            onSettled?.();
-          });
-        });
+        if (lenis) lenis.start();
       });
     }
 
@@ -5427,6 +5448,7 @@
         ? panel.querySelectorAll('.project-detail-block, .project-copy-caption')
         : document.querySelectorAll('.project-detail-block, .project-copy-caption');
       elements.forEach((el) => {
+        if (el.closest('[data-dva-detail]') || el.classList.contains('dva-detail')) return;
         el.style.opacity = '';
         el.style.transform = '';
       });
@@ -5470,36 +5492,34 @@
     }
 
     function computeDvaTextLineReveal(rect, revealTop, viewportHeight) {
-      const focusCenter = (revealTop + viewportHeight) * 0.5;
-      const elCenterY = rect.top + rect.height * 0.5;
+      const displayBottom = viewportHeight;
+      const focusCenter = (revealTop + displayBottom) * 0.5;
 
+      if (rect.bottom <= revealTop || rect.top >= displayBottom) {
+        return 0;
+      }
+
+      const elCenterY = rect.top + rect.height * 0.5;
       if (elCenterY <= focusCenter) {
         return 1;
       }
 
-      const entryLine = viewportHeight * 0.96;
-      if (rect.top >= entryLine) {
-        return 0;
-      }
-
+      const range = Math.max(displayBottom - focusCenter, 80);
       const distanceBelowCenter = elCenterY - focusCenter;
-      const rangeToCenter = Math.max(entryLine - focusCenter, rect.height + 32, 80);
-      return clamp(1 - distanceBelowCenter / rangeToCenter, 0, 1);
+      return clamp(1 - distanceBelowCenter / range, 0, 1);
     }
 
     function applyDvaTextLineScrollReveal(el, revealTop, viewportHeight) {
-      const rect = el.getBoundingClientRect();
+      const progress = easeOutCubic(computeDvaTextLineReveal(el.getBoundingClientRect(), revealTop, viewportHeight));
 
-      if (rect.bottom <= revealTop || rect.top >= viewportHeight) {
+      if (progress <= 0.001) {
         el.style.opacity = '0';
         el.style.transform = 'translate3d(0, 1.25rem, 0)';
         el.classList.remove('is-revealed');
         return;
       }
 
-      const progress = easeOutCubic(computeDvaTextLineReveal(rect, revealTop, viewportHeight));
-
-      if (progress >= 1) {
+      if (progress >= 0.999) {
         el.style.opacity = '1';
         el.style.transform = 'translate3d(0, 0, 0)';
         el.classList.add('is-revealed');
@@ -5515,7 +5535,7 @@
     function updateDvaDetailReveal() {
       if (prefersReducedMotion) return;
       if (!document.body.classList.contains('is-project-open')) return;
-      if (projectListSwitchLock || projectDetails?.classList.contains('is-project-switching')) return;
+      if (projectDetails?.classList.contains('is-project-switching')) return;
 
       const panel = document.querySelector('.project-detail[data-project="03"]:not([hidden])');
       if (!panel) return;
@@ -5569,7 +5589,7 @@
       }
 
       if (projectDetails.classList.contains('is-project-switching')) return;
-      if (projectListSwitchLock) return;
+      if (projectListInteractionLock) return;
 
       const activePanel = getActiveProjectPanel();
       if (!activePanel || activePanel.hidden) return;
@@ -5626,8 +5646,8 @@
 
       activePanel.querySelectorAll('.project-copy-caption').forEach((caption) => {
         if (caption.closest('[data-dva-detail]')) {
-          caption.style.opacity = '';
-          caption.style.transform = '';
+          caption.style.opacity = '1';
+          caption.style.transform = 'none';
           return;
         }
         applyCaptionReveal(caption, revealTop, viewportHeight);
@@ -5639,6 +5659,7 @@
       projectListSticky?.classList.remove('is-collapse-instant');
       projectListSticky?.classList.remove('is-project-list-locked');
       projectListSwitchLock = false;
+      projectListInteractionLock = false;
       collapseScrollY = null;
       lastPipelineDetailScrollY = 0;
       allowProjectListCollapse = false;
@@ -5779,6 +5800,7 @@
     function enableProjectListCollapse() {
       if (!document.body.classList.contains('is-project-open')) return;
       allowProjectListCollapse = true;
+      refreshCollapseScrollThreshold();
     }
 
     function isPipelineHorizontallyEngaged(panel) {
@@ -5810,6 +5832,7 @@
     }
 
     function remeasureProjectListThreshold() {
+      if (projectListSticky?.classList.contains('is-scrolled')) return;
       refreshCollapseScrollThreshold();
     }
 
@@ -5827,7 +5850,7 @@
       if (!projectListSticky) return;
       if (projectSwitchScrollLock) return;
       if (projectListSwitchLock) return;
-      if (projectListSticky.classList.contains('is-collapse-instant')) return;
+      if (projectListInteractionLock) return;
       if (projectListSticky.classList.contains('is-project-list-locked')) return;
       if (projectDetails?.classList.contains('is-project-switching')) return;
 
@@ -6476,10 +6499,6 @@
 
         if (!wasOpen) {
           resetProjectListScrollState();
-        } else {
-          document.body.classList.remove('is-pipeline-scroll-locked');
-          projectListSticky?.classList.add('is-collapse-instant');
-          projectListSticky?.classList.remove('is-scrolled');
         }
 
         finishProjectOpenLayout();
