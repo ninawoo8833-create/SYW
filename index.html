@@ -9037,8 +9037,7 @@
           }
 
           if (analyzeNode) {
-            analyzeNode.style.opacity = '1';
-            analyzeNode.style.transform = '';
+            applyAxisNodeReveal(analyzeNode, runner);
           }
 
           if (axesCluster) {
