@@ -3235,6 +3235,11 @@
       color: rgb(23 23 23);
     }
 
+    .dva-matrix__node[data-dva-label-nowrap] .dva-matrix__node-label {
+      max-width: 94%;
+      white-space: nowrap;
+    }
+
     .dva-kinetic__intro {
       margin-top: var(--dva-module-gap);
     }
@@ -3258,8 +3263,16 @@
     .dva-case__frame {
       aspect-ratio: 3 / 4;
       border: 1px solid rgb(229 229 229);
+      overflow: hidden;
       background:
         linear-gradient(135deg, rgb(245 245 245) 0%, rgb(237 237 237) 48%, rgb(245 245 245) 100%);
+    }
+
+    .dva-case__frame img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
     }
 
     .dva-case__caption {
@@ -3576,7 +3589,7 @@
   <!-- Header -->
   <header class="border-b border-neutral-200">
     <div class="flex items-center px-6 py-5 lg:px-10 lg:py-6">
-      <a href="/" class="text-xs text-neutral-900 transition-colors hover:text-hover">Szu-Ying Wu</a>
+      <span class="text-xs text-neutral-900">Szu-Ying Wu</span>
     </div>
   </header>
 
@@ -4416,7 +4429,7 @@
                     <span class="dva-matrix__node-circle" aria-hidden="true"></span>
                     <p class="dva-matrix__node-label">科技媒体</p>
                   </div>
-                  <div class="dva-matrix__node" style="--dva-qx: 9.3; --dva-qy: 2.6; --dva-size: 0.5132;" data-dva-preview-count="3" data-dva-reveal data-dva-reveal-order="8">
+                  <div class="dva-matrix__node" style="--dva-qx: 9.3; --dva-qy: 2.6; --dva-size: 0.5132;" data-dva-preview-count="2" data-dva-preview-images="assets/projects/dynamic-video-automation/news-politics-preview-01.png,assets/projects/dynamic-video-automation/news-politics-preview-02.png" data-dva-reveal data-dva-reveal-order="8">
                     <span class="dva-matrix__node-circle" aria-hidden="true"></span>
                     <p class="dva-matrix__node-label">新闻党政</p>
                   </div>
@@ -4428,7 +4441,7 @@
                     <span class="dva-matrix__node-circle" aria-hidden="true"></span>
                     <p class="dva-matrix__node-label">女性成长</p>
                   </div>
-                  <div class="dva-matrix__node" style="--dva-qx: 3; --dva-qy: 3; --dva-size: 0.4343;" data-dva-preview-count="2" data-dva-preview-images="assets/projects/dynamic-video-automation/wellness-preview-01.png,assets/projects/dynamic-video-automation/wellness-preview-02.png" data-dva-reveal data-dva-reveal-order="11">
+                  <div class="dva-matrix__node" style="--dva-qx: 3; --dva-qy: 3; --dva-size: 1;" data-dva-preview-count="2" data-dva-preview-images="assets/projects/dynamic-video-automation/wellness-preview-01.png,assets/projects/dynamic-video-automation/wellness-preview-02.png" data-dva-label-nowrap data-dva-reveal data-dva-reveal-order="11">
                     <span class="dva-matrix__node-circle" aria-hidden="true"></span>
                     <p class="dva-matrix__node-label">养生大健康</p>
                   </div>
@@ -4449,20 +4462,28 @@
               </div>
               <div class="dva-cases">
                 <article class="dva-case" data-dva-reveal data-dva-reveal-order="1">
-                  <div class="dva-case__frame" aria-hidden="true"></div>
-                  <p class="dva-case__caption">重点内容高亮</p>
+                  <div class="dva-case__frame">
+                    <img src="assets/projects/dynamic-video-automation/kinetic-case-01.gif" alt="字幕特效和运镜" loading="lazy" decoding="async" />
+                  </div>
+                  <p class="dva-case__caption">字幕特效和运镜</p>
                 </article>
                 <article class="dva-case" data-dva-reveal data-dva-reveal-order="2">
-                  <div class="dva-case__frame" aria-hidden="true"></div>
-                  <p class="dva-case__caption">智能 B-roll</p>
+                  <div class="dva-case__frame">
+                    <img src="assets/projects/dynamic-video-automation/kinetic-case-02.gif" alt="重点内容高亮" loading="lazy" decoding="async" />
+                  </div>
+                  <p class="dva-case__caption">重点内容高亮</p>
                 </article>
                 <article class="dva-case" data-dva-reveal data-dva-reveal-order="3">
-                  <div class="dva-case__frame" aria-hidden="true"></div>
-                  <p class="dva-case__caption">关键信息提取</p>
+                  <div class="dva-case__frame">
+                    <img src="assets/projects/dynamic-video-automation/kinetic-case-03.gif" alt="智能B-roll" loading="lazy" decoding="async" />
+                  </div>
+                  <p class="dva-case__caption">智能B-roll</p>
                 </article>
                 <article class="dva-case" data-dva-reveal data-dva-reveal-order="4">
-                  <div class="dva-case__frame" aria-hidden="true"></div>
-                  <p class="dva-case__caption">垂直风格场景</p>
+                  <div class="dva-case__frame">
+                    <img src="assets/projects/dynamic-video-automation/kinetic-case-04.gif" alt="关键信息提取" loading="lazy" decoding="async" />
+                  </div>
+                  <p class="dva-case__caption">关键信息提取</p>
                 </article>
               </div>
             </section>
