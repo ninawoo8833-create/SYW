@@ -9,14 +9,14 @@
   <link rel="apple-touch-icon" href="assets/favicon.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Shippori+Antique&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,600;1,9..40,300;1,9..40,600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
       theme: {
         extend: {
           fontFamily: {
-            sans: ['"Shippori Antique"', '"Chiron GoRound TC"', 'sans-serif'],
+            sans: ['"DM Sans"', 'sans-serif'],
           },
           letterSpacing: {
             tightest: '-0.04em',
@@ -30,32 +30,87 @@
     };
   </script>
   <style>
-    /* Chinese / CJK glyphs → Chiron GoRound TC; Latin stays Shippori Antique */
+    /* CJK glyphs stack onto DM Sans by weight */
     @font-face {
-      font-family: 'Shippori Antique';
+      font-family: 'DM Sans';
       font-style: normal;
-      font-weight: 400;
+      font-weight: 300;
       font-display: swap;
       src: url(https://fonts.gstatic.com/s/chirongoroundtc/v4/tssEAopDbiwZ4xauFDX3yQ3Ywoaj6kNR0yP4oqNo8RKqbBqJHA.ttf) format('truetype');
       unicode-range: U+3000-303F, U+3400-4DBF, U+4E00-9FFF, U+F900-FAFF, U+FF00-FFEF, U+3001-3002, U+3008-3011, U+3010-3011, U+300A-300B, U+FF08-FF09, U+2014;
     }
 
     @font-face {
-      font-family: 'Shippori Antique';
+      font-family: 'DM Sans';
       font-style: normal;
-      font-weight: 500;
+      font-weight: 600;
       font-display: swap;
       src: url(https://fonts.gstatic.com/s/chirongoroundtc/v4/tssEAopDbiwZ4xauFDX3yQ3Ywoaj6kNR0yP4oqNo8RKqXhqJHA.ttf) format('truetype');
       unicode-range: U+3000-303F, U+3400-4DBF, U+4E00-9FFF, U+F900-FAFF, U+FF00-FFEF, U+3001-3002, U+3008-3011, U+3010-3011, U+300A-300B, U+FF08-FF09, U+2014;
     }
 
-    @font-face {
-      font-family: 'Shippori Antique';
-      font-style: normal;
-      font-weight: 700;
-      font-display: swap;
-      src: url(https://fonts.gstatic.com/s/chirongoroundtc/v4/tssEAopDbiwZ4xauFDX3yQ3Ywoaj6kNR0yP4oqNo8RKqix2JHA.ttf) format('truetype');
-      unicode-range: U+3000-303F, U+3400-4DBF, U+4E00-9FFF, U+F900-FAFF, U+FF00-FFEF, U+3001-3002, U+3008-3011, U+3010-3011, U+300A-300B, U+FF08-FF09, U+2014;
+    body {
+      font-family: "DM Sans", sans-serif;
+      font-weight: 600;
+    }
+
+    .text-bracket-en,
+    .aws-workflow-axis-bracket,
+    .project-copy-overview__tag,
+    .project-copy-caption__tag {
+      font-family: "Instrument Serif", Georgia, "Times New Roman", serif;
+      font-weight: 400;
+    }
+
+    :is(
+      .text-neutral-400,
+      .row-meta,
+      .site-loader__label,
+      .project-detail .project-copy-label,
+      #project-details .project-copy-label,
+      .gmp-pipeline-demo__steps,
+      .gmp-pipeline-demo__stage-label,
+      .gmp-pipeline-demo__run:disabled,
+      .gmp-pipeline-demo__output-placeholder,
+      .aws-workflow-demo__steps,
+      .aws-workflow-demo__stage-label,
+      .aws-workflow-demo__run:disabled,
+      .aws-workflow-demo__brief-placeholder,
+      .aws-workflow-demo__output-placeholder,
+      .pipeline-runner__action:disabled,
+      .gmp-pipeline-node__status,
+      .aws-workflow-axis-row__label,
+      .pipeline-runner .aws-workflow-demo__brief-kicker,
+      .dva-matrix__axis,
+      .dva-case__caption,
+      .aws-workflow-demo__script,
+      .gmp-pipeline-node__insights,
+      .aws-workflow-axis-body,
+      .pipeline-runner .aws-workflow-axis-body,
+      body.is-project-open #projects .project-link:not(.is-active),
+      body.is-project-open #projects [role="list"] > li:not(.is-active-project) .tabular-nums
+    ) {
+      font-weight: 300;
+      color: rgb(23 23 23);
+    }
+
+    :is(
+      .text-neutral-900,
+      .font-bold,
+      .font-black,
+      #hero-heading,
+      .site-loader__percent
+    ) {
+      font-weight: 600;
+    }
+
+    :is(
+      body.is-project-open #projects .project-link.is-active,
+      body.is-project-open #projects [role="list"] > li.is-active-project .tabular-nums,
+      .gmp-pipeline-demo__step.is-active,
+      .aws-workflow-demo__step.is-active
+    ) {
+      font-weight: 600;
     }
 
     html.lenis, html.lenis body {
@@ -73,6 +128,110 @@
     @media (prefers-reduced-motion: reduce) {
       html {
         scroll-behavior: auto;
+      }
+    }
+
+    html.is-site-loading,
+    html.is-site-loading body {
+      overflow: hidden;
+    }
+
+    .site-loader {
+      position: fixed;
+      inset: 0;
+      z-index: 10000;
+      pointer-events: all;
+    }
+
+    .site-loader.is-complete {
+      pointer-events: none;
+    }
+
+    .site-loader__panel {
+      position: absolute;
+      left: 0;
+      right: 0;
+      height: 50%;
+      background: #f1f0e9;
+      will-change: transform;
+      transition: transform 1.05s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .site-loader__panel--top {
+      top: 0;
+    }
+
+    .site-loader__panel--bottom {
+      bottom: 0;
+    }
+
+    .site-loader.is-revealing .site-loader__panel--top {
+      transform: translate3d(0, -100%, 0);
+    }
+
+    .site-loader.is-revealing .site-loader__panel--bottom {
+      transform: translate3d(0, 100%, 0);
+    }
+
+    .site-loader__readout {
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.55rem;
+      transition: opacity 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .site-loader.is-revealing .site-loader__readout {
+      opacity: 0;
+    }
+
+    .site-loader__percent {
+      margin: 0;
+      font-size: 1.875rem;
+      line-height: 1.08;
+      font-weight: 600;
+      letter-spacing: -0.04em;
+      color: rgb(23 23 23);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .site-loader__label {
+      margin: 0;
+      font-size: var(--text-small);
+      line-height: var(--leading-small);
+      color: rgb(23 23 23);
+      letter-spacing: 0.02em;
+    }
+
+    .site-loader__label .text-bracket-en {
+      font-weight: 400;
+    }
+
+    @media (min-width: 768px) {
+      .site-loader__percent {
+        font-size: 3rem;
+      }
+    }
+
+    @media (min-width: 1024px) {
+      .site-loader__percent {
+        font-size: 3.75rem;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .site-loader__panel {
+        transition: opacity 0.25s ease;
+      }
+
+      .site-loader.is-revealing .site-loader__panel--top,
+      .site-loader.is-revealing .site-loader__panel--bottom {
+        transform: none;
+        opacity: 0;
       }
     }
 
@@ -147,6 +306,9 @@
       --measure-body: 36em;
       --project-block-gap: clamp(3rem, 5vw, 4.75rem);
       --text-cjk-scale: 0.875;
+      --font-prose: "DM Sans", sans-serif;
+      --font-weight-strong: 600;
+      --font-weight-muted: 300;
     }
 
     @media (min-width: 1024px) {
@@ -174,8 +336,7 @@
       justify-self: end;
       transition:
         color 0.55s cubic-bezier(0.22, 1, 0.36, 1),
-        font-weight 0.55s cubic-bezier(0.22, 1, 0.36, 1),
-        transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+        font-weight 0.55s cubic-bezier(0.22, 1, 0.36, 1);
     }
 
     #projects .project-list-header,
@@ -205,16 +366,12 @@
 
     body.is-project-open #projects [role="list"] > li:not(.is-active-project) .tabular-nums,
     body.is-project-open #projects .project-link:not(.is-active) {
-      color: rgb(163 163 163);
-      font-weight: 400;
-      transform: scale(1);
+      color: rgb(23 23 23);
     }
 
     body.is-project-open #projects [role="list"] > li.is-active-project .tabular-nums,
     body.is-project-open #projects .project-link.is-active {
       color: #BA1200;
-      font-weight: 700;
-      transform: scale(1);
     }
 
     #project-details .project-copy-body:not(.is-meta) {
@@ -242,8 +399,6 @@
       margin-right: 0.4em;
       padding-top: 0.2em;
       vertical-align: top;
-      font-family: "Instrument Serif", Georgia, "Times New Roman", serif;
-      font-style: normal;
       font-size: var(--text-small);
       line-height: var(--leading-small);
       letter-spacing: 0;
@@ -282,7 +437,6 @@
 
     .text-bracket-en,
     .aws-workflow-axis-bracket {
-      font-family: "Instrument Serif", Georgia, "Times New Roman", serif;
       font-style: normal;
     }
 
@@ -311,6 +465,27 @@
       letter-spacing: 0.02em;
       max-width: var(--measure-body);
       text-wrap: pretty;
+    }
+
+    #project-details .project-copy-caption {
+      font-size: var(--text-large);
+      line-height: var(--leading-large);
+      letter-spacing: -0.015em;
+      max-width: min(100%, 42em);
+      text-wrap: pretty;
+      font-feature-settings: "kern" 1, "liga" 1;
+      color: rgb(23 23 23);
+      margin: 0;
+      opacity: 0;
+      will-change: opacity, transform;
+    }
+
+    #project-details .project-copy-caption__tag {
+      margin-right: 0.28em;
+    }
+
+    #project-details .project-copy-caption .text-cjk {
+      font-size: calc(1em * var(--text-cjk-scale));
     }
 
     #projects [role="list"] > li:has(.project-link:not(.is-active):hover) .project-link,
@@ -358,6 +533,27 @@
 
     .project-detail {
       padding-top: calc(0.75rem * 1.5 * 5);
+      opacity: 1;
+      transition: opacity 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    #project-details.is-project-switching .project-detail:not([hidden]) {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 0;
+      width: 100%;
+    }
+
+    #project-details.is-project-switching .project-detail:not([hidden]) > .project-copy {
+      opacity: 1 !important;
+      transform: none !important;
+    }
+
+    .project-detail.is-project-fading-out,
+    .project-detail.is-project-fading-in {
+      opacity: 0;
+      pointer-events: none;
     }
 
     #project-details .project-detail > :not([hidden]) ~ :not([hidden]) {
@@ -372,7 +568,7 @@
     }
 
     .project-detail .project-copy-label {
-      color: rgb(163 163 163);
+      color: rgb(23 23 23);
       margin: 0;
     }
 
@@ -402,7 +598,7 @@
       margin: 0;
     }
 
-    .project-detail figcaption.project-copy-body.is-meta {
+    .project-detail figcaption.project-copy-caption {
       padding-top: 0.125rem;
     }
 
@@ -418,6 +614,7 @@
 
     #project-details {
       padding-left: 2px;
+      position: relative;
     }
 
     .project-detail .project-copy,
@@ -576,7 +773,7 @@
     }
 
     .gmp-pipeline-demo__run:disabled {
-      color: rgb(163 163 163);
+      color: rgb(23 23 23);
       cursor: not-allowed;
     }
 
@@ -586,7 +783,7 @@
       gap: 0.75rem;
       font-size: var(--text-small);
       line-height: var(--leading-small);
-      color: rgb(163 163 163);
+      color: rgb(23 23 23);
     }
 
     .gmp-pipeline-demo__step.is-active,
@@ -596,7 +793,6 @@
 
     .gmp-pipeline-demo__step.is-active {
       color: #BA1200;
-      font-weight: 700;
     }
 
     .gmp-pipeline-demo__grid {
@@ -619,7 +815,7 @@
       line-height: var(--leading-small);
       letter-spacing: 0.06em;
       text-transform: uppercase;
-      color: rgb(163 163 163);
+      color: rgb(23 23 23);
     }
 
     .gmp-pipeline-demo__panel {
@@ -664,7 +860,7 @@
       justify-content: center;
       gap: 0.5rem;
       padding: 1rem;
-      color: rgb(163 163 163);
+      color: rgb(23 23 23);
       font-size: var(--text-small);
       line-height: var(--leading-small);
       text-align: center;
@@ -914,7 +1110,7 @@
       justify-content: center;
       gap: 0.5rem;
       padding: 1rem;
-      color: rgb(163 163 163);
+      color: rgb(23 23 23);
       font-size: var(--text-small);
       line-height: var(--leading-small);
       text-align: center;
@@ -1148,7 +1344,7 @@
     }
 
     .aws-workflow-demo__run:disabled {
-      color: rgb(163 163 163);
+      color: rgb(23 23 23);
       cursor: not-allowed;
     }
 
@@ -1158,7 +1354,7 @@
       gap: 0.75rem;
       font-size: var(--text-small);
       line-height: var(--leading-small);
-      color: rgb(163 163 163);
+      color: rgb(23 23 23);
     }
 
     .aws-workflow-demo__step.is-active,
@@ -1168,7 +1364,6 @@
 
     .aws-workflow-demo__step.is-active {
       color: #BA1200;
-      font-weight: 700;
     }
 
     .aws-workflow-demo__flow {
@@ -1190,7 +1385,7 @@
       line-height: var(--leading-small);
       letter-spacing: 0.06em;
       text-transform: uppercase;
-      color: rgb(163 163 163);
+      color: rgb(23 23 23);
     }
 
     .aws-workflow-demo__connector {
@@ -1238,7 +1433,7 @@
       left: 0;
       max-width: 100%;
       overflow: hidden;
-      color: rgb(163 163 163);
+      color: rgb(23 23 23);
       font-size: var(--text-body);
       line-height: var(--leading-body);
       white-space: nowrap;
@@ -1314,7 +1509,7 @@
 
     .aws-workflow-demo__script {
       min-height: 8.5rem;
-      color: rgb(64 64 64);
+      color: rgb(23 23 23);
       font-size: var(--text-small);
       line-height: 1.45;
       white-space: pre-wrap;
@@ -1364,7 +1559,7 @@
       justify-content: center;
       gap: 0.75rem;
       padding: 1rem;
-      color: rgb(163 163 163);
+      color: rgb(23 23 23);
       font-size: var(--text-small);
       line-height: var(--leading-small);
       text-align: center;
@@ -1660,7 +1855,7 @@
     }
 
     .pipeline-runner__action:disabled {
-      color: rgb(163 163 163);
+      color: rgb(23 23 23);
       cursor: not-allowed;
     }
 
@@ -1712,7 +1907,7 @@
 
     .pipeline-runner .aws-workflow-axis-body {
       width: 100%;
-      color: rgb(64 64 64);
+      color: rgb(23 23 23);
       overflow: hidden;
     }
 
@@ -1927,7 +2122,7 @@
 
     .gmp-pipeline-node__status {
       margin: 0;
-      color: rgb(115 115 115);
+      color: rgb(23 23 23);
       font-size: 0.85em;
       line-height: 1.4;
     }
@@ -1936,7 +2131,7 @@
       margin: 0.15rem 0 0;
       padding: 0;
       list-style: none;
-      color: rgb(64 64 64);
+      color: rgb(23 23 23);
       font-size: 0.82em;
       line-height: 1.45;
     }
@@ -2124,7 +2319,7 @@
 
     .aws-workflow-axis-row__label {
       margin: 0;
-      color: rgb(115 115 115);
+      color: rgb(23 23 23);
       font-size: var(--text-pipeline-matrix-node);
       line-height: var(--leading-pipeline-matrix-node);
       letter-spacing: 0.02em;
@@ -2208,7 +2403,7 @@
       font-size: 0.62em;
       line-height: 1.38;
       letter-spacing: 0.005em;
-      color: rgb(64 64 64);
+      color: rgb(23 23 23);
     }
 
     .aws-workflow-axis-node__title {
@@ -2377,7 +2572,7 @@
     .pipeline-script-scene__label {
       margin-right: 0.85rem;
       white-space: nowrap;
-      font-weight: 400;
+      font-weight: 600;
     }
 
     .pipeline-script-scene__text {
@@ -2599,7 +2794,7 @@
     .pipeline-runner .aws-workflow-demo__brief-kicker {
       display: none;
       margin: 0 0 0.4rem;
-      color: rgb(115 115 115);
+      color: rgb(23 23 23);
       font-size: var(--text-small);
       line-height: var(--leading-small);
       letter-spacing: 0.02em;
@@ -2893,8 +3088,8 @@
       width: 100%;
     }
 
-    [data-project="06"] .project-copy-body.is-meta,
-    [data-project="07"] .project-copy-body.is-meta {
+    [data-project="06"] .project-copy-caption,
+    [data-project="07"] .project-copy-caption {
       width: 100%;
     }
 
@@ -2971,7 +3166,9 @@
 
     body.is-project-open #project-list-sticky.is-collapse-instant,
     body.is-project-open #project-list-sticky.is-collapse-instant .project-list-header,
-    body.is-project-open #project-list-sticky.is-collapse-instant [role="list"] > li {
+    body.is-project-open #project-list-sticky.is-collapse-instant [role="list"] > li,
+    body.is-project-open #project-list-sticky.is-collapse-instant [role="list"] > li .tabular-nums,
+    body.is-project-open #project-list-sticky.is-collapse-instant .project-link {
       transition: none !important;
     }
 
@@ -3011,8 +3208,32 @@
       margin-top: var(--dva-module-gap);
     }
 
-    .dva-detail__copy-block .project-copy-body + .project-copy-body {
+    .dva-detail__copy-block .project-copy-caption + .project-copy-caption {
       margin-top: 0.75rem;
+    }
+
+    .dva-detail__copy-block .dva-detail__caption-en {
+      max-width: 100%;
+      text-wrap: balance;
+    }
+
+    .dva-detail__copy-block .dva-detail__caption-cjk {
+      margin-top: 0.75rem;
+      font-size: clamp(0.58rem, 1.45vw, 0.75rem);
+      line-height: 1.15;
+      letter-spacing: 0.01em;
+      white-space: nowrap;
+      max-width: 100%;
+    }
+
+    .dva-detail__copy-block .dva-detail__caption-cjk .text-cjk {
+      font-size: 1em;
+    }
+
+    @media (max-width: 1023px) {
+      .dva-detail__copy-block .dva-detail__caption-cjk {
+        font-size: clamp(0.5rem, 2.65vw, 0.68rem);
+      }
     }
 
     .dva-detail__copy {
@@ -3074,7 +3295,7 @@
       position: absolute;
       font-size: var(--text-small);
       line-height: var(--leading-small);
-      color: rgb(115 115 115);
+      color: rgb(23 23 23);
       letter-spacing: 0.04em;
     }
 
@@ -3265,9 +3486,8 @@
     }
 
     .dva-case__frame {
-      aspect-ratio: 2 / 3;
       border: 1px solid rgb(229 229 229);
-      overflow: hidden;
+      line-height: 0;
       background:
         linear-gradient(135deg, rgb(245 245 245) 0%, rgb(237 237 237) 48%, rgb(245 245 245) 100%);
     }
@@ -3275,8 +3495,7 @@
     .dva-case__frame img {
       display: block;
       width: 100%;
-      height: 100%;
-      object-fit: contain;
+      height: auto;
     }
 
     .dva-case__caption {
@@ -3288,7 +3507,7 @@
       text-align: center;
       font-size: var(--text-small);
       line-height: var(--leading-small);
-      color: rgb(64 64 64);
+      color: rgb(23 23 23);
     }
 
     [data-dva-reveal] {
@@ -3358,10 +3577,6 @@
       .dva-cases {
         grid-template-columns: 1fr;
       }
-
-      .dva-case__frame {
-        aspect-ratio: 2 / 3;
-      }
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -3419,6 +3634,15 @@
         transform: none !important;
         transition: none;
       }
+
+      .project-detail {
+        transition: none;
+      }
+
+      .project-copy-caption {
+        opacity: 1 !important;
+        transform: none !important;
+      }
     }
 
     @media (min-width: 1024px) {
@@ -3439,13 +3663,13 @@
       }
 
       #layout-shell > main {
-        flex: 0 0 60%;
-        width: 60%;
+        flex: 0 0 70%;
+        width: 70%;
       }
 
       #layout-shell > aside {
-        flex: 0 0 40%;
-        width: 40%;
+        flex: 0 0 30%;
+        width: 30%;
       }
 
       #layout-shell.is-project-open > main {
@@ -3459,13 +3683,13 @@
       }
 
       #footer-aside-spacer {
-        flex: 0 0 40%;
-        width: 40%;
+        flex: 0 0 30%;
+        width: 30%;
       }
 
       .footer-main {
-        flex: 0 0 60%;
-        width: 60%;
+        flex: 0 0 70%;
+        width: 70%;
       }
 
       #layout-shell.is-project-open ~ footer #footer-aside-spacer,
@@ -3570,6 +3794,15 @@
   </style>
 </head>
 <body class="bg-page font-sans text-neutral-900 antialiased">
+
+  <div id="site-loader" class="site-loader" role="status" aria-live="polite" aria-label="Loading site">
+    <div class="site-loader__panel site-loader__panel--top" aria-hidden="true"></div>
+    <div class="site-loader__panel site-loader__panel--bottom" aria-hidden="true"></div>
+    <div class="site-loader__readout">
+      <p class="site-loader__percent" id="site-loader-percent">0%</p>
+      <p class="site-loader__label"><span class="text-bracket-en">(Vibe Checking...)</span></p>
+    </div>
+  </div>
 
   <div id="cursor" class="cursor-dot hidden" aria-hidden="true"></div>
   <img
@@ -3686,19 +3919,19 @@
             <li>
               <article class="capability-row grid items-baseline gap-x-6 border-b border-neutral-200 lg:gap-x-10">
                 <h3 class="whitespace-nowrap font-bold text-neutral-900">AI Production &amp; Automation</h3>
-                <p class="scope-cell text-neutral-400">Generative AI Pipelines / Automated Asset Production / Intelligent Workflow Engineering</p>
+                <p class="scope-cell text-neutral-400">Generative AI Pipelines  / Automated Asset Production  / Intelligent Workflow Engineering</p>
               </article>
             </li>
             <li>
               <article class="capability-row grid items-baseline gap-x-6 border-b border-neutral-200 lg:gap-x-10">
                 <h3 class="whitespace-nowrap font-bold text-neutral-900">Visual &amp; Motion</h3>
-                <p class="scope-cell text-neutral-400">Design Systems Architecture / Component-Driven Design</p>
+                <p class="scope-cell text-neutral-400">Design Systems Architecture  / Component-Driven Design</p>
               </article>
             </li>
             <li>
               <article class="capability-row grid items-baseline gap-x-6 border-b border-neutral-200 lg:gap-x-10">
                 <h3 class="whitespace-nowrap font-bold text-neutral-900">Design Engineering</h3>
-                <p class="scope-cell text-neutral-400">AI-Assisted Development / Rapid Functional Prototyping / Vibe Coding Paradigm</p>
+                <p class="scope-cell text-neutral-400">AI-Assisted Development  / Rapid Functional Prototyping  / Vibe Coding Paradigm</p>
               </article>
             </li>
           </ul>
@@ -3724,31 +3957,31 @@
         <ul role="list" class="text-xs leading-[1.1]">
           <li class="grid grid-cols-[2.25rem_1fr] items-center gap-x-3 border-b border-neutral-200 lg:whitespace-nowrap">
             <span class="font-bold tabular-nums text-neutral-900">01</span>
-            <a href="#" data-project="01" data-cover="assets/covers/cover-01.png" class="project-link font-bold text-neutral-900">AI Workflow Study / 2026</a>
+            <a href="#" data-project="01" data-cover="assets/covers/cover-01.png" class="project-link font-bold text-neutral-900">AI Workflow Study  / 2026</a>
           </li>
           <li class="grid grid-cols-[2.25rem_1fr] items-center gap-x-3 border-b border-neutral-200 lg:whitespace-nowrap">
             <span class="font-bold tabular-nums text-neutral-900">02</span>
-            <a href="#" data-project="02" data-cover="assets/covers/cover-02.png" class="project-link font-bold text-neutral-900">Generative Media Pipelines / 2026</a>
+            <a href="#" data-project="02" data-cover="assets/covers/cover-02.png" class="project-link font-bold text-neutral-900">Generative Media Pipelines  / 2026</a>
           </li>
           <li class="grid grid-cols-[2.25rem_1fr] items-center gap-x-3 border-b border-neutral-200 lg:whitespace-nowrap">
             <span class="font-bold tabular-nums text-neutral-900">03</span>
-            <a href="#" data-project="03" data-cover="assets/covers/cover-03.png" class="project-link font-bold text-neutral-900">Dynamic Video Automation / 2025</a>
+            <a href="#" data-project="03" data-cover="assets/covers/cover-03.png" class="project-link font-bold text-neutral-900">Dynamic Video Automation  / 2025</a>
           </li>
           <li class="grid grid-cols-[2.25rem_1fr] items-center gap-x-3 border-b border-neutral-200 lg:whitespace-nowrap">
             <span class="font-bold tabular-nums text-neutral-900">04</span>
-            <a href="#" data-project="04" data-cover="assets/covers/cover-04.png" class="project-link font-bold text-neutral-900">Video Automation / 2024</a>
+            <a href="#" data-project="04" data-cover="assets/covers/cover-04.png" class="project-link font-bold text-neutral-900">Video Automation  / 2024</a>
           </li>
           <li class="grid grid-cols-[2.25rem_1fr] items-center gap-x-3 border-b border-neutral-200 lg:whitespace-nowrap">
             <span class="font-bold tabular-nums text-neutral-900">05</span>
-            <a href="#" data-project="05" data-cover="assets/covers/cover-05.png" class="project-link font-bold text-neutral-900">Visual Presets / 2024</a>
+            <a href="#" data-project="05" data-cover="assets/covers/cover-05.png" class="project-link font-bold text-neutral-900">Visual Presets  / 2024</a>
           </li>
           <li class="grid grid-cols-[2.25rem_1fr] items-center gap-x-3 border-b border-neutral-200 lg:whitespace-nowrap">
             <span class="font-bold tabular-nums text-neutral-900">06</span>
-            <a href="#" data-project="06" data-cover="assets/covers/cover-06.png" class="project-link font-bold text-neutral-900">Redmi Note 13 Launch Event / 2024</a>
+            <a href="#" data-project="06" data-cover="assets/covers/cover-06.png" class="project-link font-bold text-neutral-900">Redmi Note 13 Launch Event  / 2024</a>
           </li>
           <li class="grid grid-cols-[2.25rem_1fr] items-center gap-x-3 border-b border-neutral-200 lg:whitespace-nowrap">
             <span class="font-bold tabular-nums text-neutral-900">07</span>
-            <a href="#" data-project="07" data-cover="assets/covers/cover-07.png" class="project-link font-bold text-neutral-900">Redmi Note 12 Launch Event / 2023</a>
+            <a href="#" data-project="07" data-cover="assets/covers/cover-07.png" class="project-link font-bold text-neutral-900">Redmi Note 12 Launch Event  / 2023</a>
           </li>
           <li class="grid grid-cols-[2.25rem_1fr] items-center gap-x-3 border-b border-neutral-200 lg:whitespace-nowrap">
             <span class="font-bold tabular-nums text-neutral-900">08</span>
@@ -4386,8 +4619,8 @@
             <section class="dva-detail__step" aria-labelledby="dva-step-background">
               <p class="project-copy-label" id="dva-step-background" data-dva-reveal>01 / Background &amp; Challenge</p>
               <div class="dva-detail__copy-block" data-dva-reveal>
-                <p class="project-copy-body is-meta">Eliminating post-production barriers; enabling split-second packaging for talking-head videos via highly structured industry templates and intelligent subtitles.</p>
-                <p class="project-copy-body is-meta">破除传统后期高门槛，通过高度结构化的行业模板与智能化字幕，实现口播视频秒级包装。</p>
+                <p class="project-copy-caption dva-detail__caption-en">Eliminating post-production barriers; enabling split-second packaging for talking-head videos<br>via highly structured industry templates and intelligent subtitles.</p>
+                <p class="project-copy-caption dva-detail__caption-cjk"><span class="text-cjk">破除传统后期高门槛，通过高度结构化的行业模板与智能化字幕，实现口播视频秒级包装。</span></p>
               </div>
               <div class="dva-detail__vconnector" data-dva-reveal aria-hidden="true"></div>
             </section>
@@ -4395,8 +4628,8 @@
             <section class="dva-detail__step" aria-labelledby="dva-step-matrix">
               <p class="project-copy-label" id="dva-step-matrix" data-dva-reveal>02 / Industry-Specific Matrix</p>
               <div class="dva-detail__copy-block" data-dva-reveal>
-                <p class="project-copy-body is-meta">Mapping a visual preset matrix across the dual axes of &ldquo;Stylization&rdquo; and &ldquo;Professionalism,&rdquo; tailored to distinct commercial narratives.</p>
-                <p class="project-copy-body is-meta">洞察不同垂直行业的商业叙事逻辑，构建横跨&ldquo;风格化&rdquo;与&ldquo;专业性&rdquo;双轴的视觉预设矩阵。</p>
+                <p class="project-copy-caption dva-detail__caption-en">Mapping a visual preset matrix across the dual axes of &ldquo;Stylization&rdquo; and &ldquo;Professionalism,&rdquo;<br>tailored to distinct commercial narratives.</p>
+                <p class="project-copy-caption dva-detail__caption-cjk"><span class="text-cjk">洞察不同垂直行业的商业叙事逻辑，构建横跨&ldquo;风格化&rdquo;与&ldquo;专业性&rdquo;双轴的视觉预设矩阵。</span></p>
               </div>
               <div class="dva-matrix">
                 <div class="dva-matrix__plot" role="img" aria-label="行业矩阵：横轴为专业性，纵轴为风格化">
@@ -4461,31 +4694,31 @@
             <section class="dva-detail__step" aria-labelledby="dva-step-kinetic">
               <p class="project-copy-label" id="dva-step-kinetic" data-dva-reveal>03 / Scene-Oriented Kinetic Visual System</p>
               <div class="dva-detail__copy-block dva-kinetic__intro" data-dva-reveal>
-                <p class="project-copy-body is-meta">Focusing on talking-head scenarios, leveraging audio-driven kinetic typography and smart assets</p>
-                <p class="project-copy-body is-meta">聚焦口播场景，以音视同构的动力学字效与智能组件降低后期门槛，全面释放泛视频创作生产力。</p>
+                <p class="project-copy-caption dva-detail__caption-en">Focusing on talking-head scenarios, leveraging<br>audio-driven kinetic typography and smart assets</p>
+                <p class="project-copy-caption dva-detail__caption-cjk"><span class="text-cjk">聚焦口播场景，以音视同构的动力学字效与智能组件降低后期门槛，全面释放泛视频创作生产力。</span></p>
               </div>
               <div class="dva-cases">
                 <article class="dva-case" data-dva-reveal data-dva-reveal-order="1">
                   <div class="dva-case__frame">
-                    <img src="assets/projects/dynamic-video-automation/kinetic-case-01.gif" alt="字幕特效和运镜" loading="lazy" decoding="async" />
+                    <img data-src="assets/projects/dynamic-video-automation/kinetic-case-01.gif" alt="字幕特效和运镜" width="540" height="810" loading="lazy" decoding="async" />
                   </div>
                   <p class="dva-case__caption">字幕特效和运镜</p>
                 </article>
                 <article class="dva-case" data-dva-reveal data-dva-reveal-order="2">
                   <div class="dva-case__frame">
-                    <img src="assets/projects/dynamic-video-automation/kinetic-case-02.gif" alt="重点内容高亮" loading="lazy" decoding="async" />
+                    <img data-src="assets/projects/dynamic-video-automation/kinetic-case-02.gif" alt="重点内容高亮" width="540" height="810" loading="lazy" decoding="async" />
                   </div>
                   <p class="dva-case__caption">重点内容高亮</p>
                 </article>
                 <article class="dva-case" data-dva-reveal data-dva-reveal-order="3">
                   <div class="dva-case__frame">
-                    <img src="assets/projects/dynamic-video-automation/kinetic-case-03.gif" alt="智能B-roll" loading="lazy" decoding="async" />
+                    <img data-src="assets/projects/dynamic-video-automation/kinetic-case-03.gif" alt="智能B-roll" width="1080" height="1620" loading="lazy" decoding="async" />
                   </div>
                   <p class="dva-case__caption">智能B-roll</p>
                 </article>
                 <article class="dva-case" data-dva-reveal data-dva-reveal-order="4">
                   <div class="dva-case__frame">
-                    <img src="assets/projects/dynamic-video-automation/kinetic-case-04.gif" alt="关键信息提取" loading="lazy" decoding="async" />
+                    <img data-src="assets/projects/dynamic-video-automation/kinetic-case-04.gif" alt="关键信息提取" width="638" height="958" loading="lazy" decoding="async" />
                   </div>
                   <p class="dva-case__caption">关键信息提取</p>
                 </article>
@@ -4500,23 +4733,23 @@
           </div>
           <figure class="space-y-2">
             <img src="assets/projects/video-automation/01.png" alt="Summertime Fragments video template packaging overview" />
-            <figcaption class="project-copy-body is-meta">「夏日碎片」— six layout variants on sky collage background</figcaption>
+            <figcaption class="project-copy-caption"><span class="project-copy-caption__tag text-bracket-en">(<span class="text-cjk">夏日碎片</span>)</span> six layout variants on sky collage background</figcaption>
           </figure>
           <figure class="space-y-2">
             <img src="assets/projects/video-automation/02.png" alt="Summertime Fragments video template screen designs" />
-            <figcaption class="project-copy-body is-meta">「夏日碎片」— Summertime Diaries, VLOG, and collage compositions</figcaption>
+            <figcaption class="project-copy-caption"><span class="project-copy-caption__tag text-bracket-en">(<span class="text-cjk">夏日碎片</span>)</span> Summertime Diaries, VLOG, and collage compositions</figcaption>
           </figure>
           <figure class="space-y-2">
             <img src="assets/projects/video-automation/03.png" alt="Emotional Collage video template packaging overview" />
-            <figcaption class="project-copy-body is-meta">「情绪拼贴」— autumn mood collage templates on dark brown</figcaption>
+            <figcaption class="project-copy-caption"><span class="project-copy-caption__tag text-bracket-en">(<span class="text-cjk">情绪拼贴</span>)</span> autumn mood collage templates on dark brown</figcaption>
           </figure>
           <figure class="space-y-2">
             <img src="assets/projects/video-automation/04.png" alt="Emotional Collage video template color preset variants" />
-            <figcaption class="project-copy-body is-meta">「情绪拼贴」— coastal scenes with thermal color-map presets</figcaption>
+            <figcaption class="project-copy-caption"><span class="project-copy-caption__tag text-bracket-en">(<span class="text-cjk">情绪拼贴</span>)</span> coastal scenes with thermal color-map presets</figcaption>
           </figure>
           <figure class="space-y-2">
             <img src="assets/projects/video-automation/05.png" alt="SMS Particle video template packaging overview" />
-            <figcaption class="project-copy-body is-meta">「短信粒子」— chat UI with particle dissolve effects</figcaption>
+            <figcaption class="project-copy-caption"><span class="project-copy-caption__tag text-bracket-en">(<span class="text-cjk">短信粒子</span>)</span> chat UI with particle dissolve effects</figcaption>
           </figure>
         </article>
 
@@ -4526,15 +4759,15 @@
           </div>
           <figure class="space-y-2">
             <img src="assets/projects/visual-presets/01.png" alt="Fisheye lens visual preset effect" />
-            <figcaption class="project-copy-body is-meta">Fisheye preset — distorted wide-angle street portrait</figcaption>
+            <figcaption class="project-copy-caption"><span class="project-copy-caption__tag text-bracket-en">(Fisheye preset)</span> distorted wide-angle street portrait</figcaption>
           </figure>
           <figure class="space-y-2">
             <img src="assets/projects/visual-presets/02.png" alt="Visual preset selection interface in mobile editor" />
-            <figcaption class="project-copy-body is-meta">In-app preset picker — 古早 DV filter and thumbnail row</figcaption>
+            <figcaption class="project-copy-caption"><span class="project-copy-caption__tag text-bracket-en">(In-app preset picker)</span> <span class="text-cjk">古早 DV</span> filter and thumbnail row</figcaption>
           </figure>
           <figure class="space-y-2">
             <img src="assets/projects/visual-presets/03.png" alt="Cool-tone CCD filter effect packaging" />
-            <figcaption class="project-copy-body is-meta">「冷调CCD」— before/after comparison and sample gallery</figcaption>
+            <figcaption class="project-copy-caption"><span class="project-copy-caption__tag text-bracket-en">(<span class="text-cjk">冷调CCD</span>)</span> before/after comparison and sample gallery</figcaption>
           </figure>
         </article>
 
@@ -4565,7 +4798,7 @@
             <figure class="rn13-frame">
               <img src="assets/projects/redmi-note-13/09.png" alt="Redmi Note 13 Series three iconic Pros" />
             </figure>
-            <p class="project-copy-body is-meta">Series opener — three Pro models, one visual system</p>
+            <p class="project-copy-caption"><span class="project-copy-caption__tag text-bracket-en">(Series opener)</span> three Pro models, one visual system</p>
           </section>
 
           <section class="rn13-section rn13-asym-55-45 rn13-split">
@@ -4581,7 +4814,7 @@
             <figure class="rn13-frame">
               <img src="assets/projects/redmi-note-13/02.png" alt="Redmi Note 13 Pro 5G product feature grid" />
             </figure>
-            <p class="project-copy-body is-meta">Pro 5G — bento feature breakdown</p>
+            <p class="project-copy-caption"><span class="project-copy-caption__tag text-bracket-en">(Pro 5G)</span> bento feature breakdown</p>
           </section>
 
           <section class="rn13-section rn13-asym-58-42 rn13-split">
@@ -4615,7 +4848,7 @@
             <figure class="rn13-frame rn13-narrow">
               <img src="assets/projects/redmi-note-13/11.png" alt="Xiaomi retail expansion in Southeast Asia" />
             </figure>
-            <p class="project-copy-body is-meta">Retail expansion — Southeast Asia Mi Store rollout</p>
+            <p class="project-copy-caption"><span class="project-copy-caption__tag text-bracket-en">(Retail expansion)</span> Southeast Asia Mi Store rollout</p>
           </section>
 
         </article>
@@ -4629,14 +4862,14 @@
             <figure class="rn13-frame">
               <img src="assets/projects/redmi-note-12/01.png" alt="Redmi Note 12 Series launch stage in Johannesburg" />
             </figure>
-            <p class="project-copy-body is-meta">Keynote stage — Live vivid global launch setup</p>
+            <p class="project-copy-caption"><span class="project-copy-caption__tag text-bracket-en">(Keynote stage)</span> Live vivid global launch setup</p>
           </section>
 
           <section class="rn13-section">
             <figure class="rn13-frame">
               <img src="assets/projects/redmi-note-12/02.png" alt="Redmi Note 12 and 12 5G feature overview" />
             </figure>
-            <p class="project-copy-body is-meta">Redmi Note 12 | 12 5G — full feature bento breakdown</p>
+            <p class="project-copy-caption"><span class="project-copy-caption__tag text-bracket-en">(Redmi Note 12 | 12 5G)</span> full feature bento breakdown</p>
           </section>
 
           <section class="rn13-section rn13-asym-58-42 rn13-split">
@@ -4679,7 +4912,7 @@
             <figure class="rn13-frame rn13-narrow">
               <img src="assets/projects/redmi-note-12/11.png" alt="Redmi Note 12 battery solution keynote tunnel" />
             </figure>
-            <p class="project-copy-body is-meta">Keynote moment — best ever battery solution LED tunnel</p>
+            <p class="project-copy-caption"><span class="project-copy-caption__tag text-bracket-en">(Keynote moment)</span> best ever battery solution LED tunnel</p>
           </section>
 
         </article>
@@ -4692,20 +4925,20 @@
           <section class="motion-reel-section motion-reel-block space-y-2">
             <p class="project-copy-label">Frames:</p>
             <div class="motion-reel-grid">
-              <img class="is-animated" src="assets/projects/motion-reel/A.gif" alt="Motion study — A" loading="eager" decoding="sync" />
-              <img class="is-animated" src="assets/projects/motion-reel/B.gif" alt="Motion study — B" loading="eager" decoding="sync" />
-              <img class="is-animated" src="assets/projects/motion-reel/c.gif" alt="Motion study — c" loading="eager" decoding="sync" />
-              <img class="is-animated" src="assets/projects/motion-reel/d.gif" alt="Motion study — d" loading="eager" decoding="sync" />
-              <img class="is-animated" src="assets/projects/motion-reel/e.gif" alt="Motion study — e" loading="eager" decoding="sync" />
-              <img class="is-animated" src="assets/projects/motion-reel/F.gif" alt="Motion study — F" loading="eager" decoding="sync" />
-              <img class="is-animated" src="assets/projects/motion-reel/g.gif" alt="Motion study — g" loading="eager" decoding="sync" />
-              <img class="is-animated" src="assets/projects/motion-reel/H.gif" alt="Motion study — H" loading="eager" decoding="sync" />
-              <img class="is-animated" src="assets/projects/motion-reel/m.gif" alt="Motion study — m" loading="eager" decoding="sync" />
-              <img class="is-animated" src="assets/projects/motion-reel/s.gif" alt="Motion study — s" loading="eager" decoding="sync" />
-              <img class="is-animated" src="assets/projects/motion-reel/w.gif" alt="Motion study — w" loading="eager" decoding="sync" />
-              <img class="is-animated" src="assets/projects/motion-reel/Z.gif" alt="Motion study — Z" loading="eager" decoding="sync" />
+              <img class="is-animated" data-src="assets/projects/motion-reel/A.gif" alt="Motion study — A" loading="lazy" decoding="async" />
+              <img class="is-animated" data-src="assets/projects/motion-reel/B.gif" alt="Motion study — B" loading="lazy" decoding="async" />
+              <img class="is-animated" data-src="assets/projects/motion-reel/c.gif" alt="Motion study — c" loading="lazy" decoding="async" />
+              <img class="is-animated" data-src="assets/projects/motion-reel/d.gif" alt="Motion study — d" loading="lazy" decoding="async" />
+              <img class="is-animated" data-src="assets/projects/motion-reel/e.gif" alt="Motion study — e" loading="lazy" decoding="async" />
+              <img class="is-animated" data-src="assets/projects/motion-reel/F.gif" alt="Motion study — F" loading="lazy" decoding="async" />
+              <img class="is-animated" data-src="assets/projects/motion-reel/g.gif" alt="Motion study — g" loading="lazy" decoding="async" />
+              <img class="is-animated" data-src="assets/projects/motion-reel/H.gif" alt="Motion study — H" loading="lazy" decoding="async" />
+              <img class="is-animated" data-src="assets/projects/motion-reel/m.gif" alt="Motion study — m" loading="lazy" decoding="async" />
+              <img class="is-animated" data-src="assets/projects/motion-reel/s.gif" alt="Motion study — s" loading="lazy" decoding="async" />
+              <img class="is-animated" data-src="assets/projects/motion-reel/w.gif" alt="Motion study — w" loading="lazy" decoding="async" />
+              <img class="is-animated" data-src="assets/projects/motion-reel/Z.gif" alt="Motion study — Z" loading="lazy" decoding="async" />
             </div>
-            <p class="project-copy-body is-meta">12 animated loops — A → Z</p>
+            <p class="project-copy-caption"><span class="project-copy-caption__tag text-bracket-en">(12 animated loops)</span> A → Z</p>
           </section>
 
         </article>
@@ -4753,6 +4986,50 @@
     let dvaMatrixPreviewExpandLeft = false;
     let dvaMatrixPreviewShowToken = 0;
     const dvaMatrixImageCache = new Map();
+    const projectCoverCache = new Map();
+    let scheduleDvaMatrixPreload = null;
+    function preloadImageAsset(src, cache = null) {
+      if (!src) return Promise.resolve(null);
+      if (cache?.has(src)) return cache.get(src);
+
+      const promise = new Promise((resolve) => {
+        const loader = new Image();
+        loader.decoding = 'async';
+        loader.onload = () => resolve(loader);
+        loader.onerror = () => resolve(null);
+        loader.src = src;
+      });
+
+      cache?.set(src, promise);
+      return promise;
+    }
+
+    function hydrateLazyMedia(root = document) {
+      root.querySelectorAll('img[data-src]').forEach((img) => {
+        const src = img.dataset.src;
+        if (!src) return;
+        img.src = src;
+        img.removeAttribute('data-src');
+      });
+    }
+
+    function preloadProjectCoversIdle() {
+      const sources = [...new Set(
+        [...document.querySelectorAll('.project-link[data-cover]')]
+          .map((link) => link.dataset.cover)
+          .filter(Boolean),
+      )];
+
+      const run = () => {
+        sources.forEach((src) => preloadImageAsset(src, projectCoverCache));
+      };
+
+      if ('requestIdleCallback' in window) {
+        requestIdleCallback(run, { timeout: 3000 });
+      } else {
+        window.setTimeout(run, 1200);
+      }
+    }
     let dvaMatrixPreviewX = 0;
     let dvaMatrixPreviewY = 0;
     let dvaMatrixActiveNode = null;
@@ -4869,6 +5146,9 @@
     let collapseScrollY = null;
     let lastPipelineDetailScrollY = 0;
     let allowProjectListCollapse = false;
+    let projectSwitchScrollLock = false;
+    let projectListSwitchLock = false;
+    let projectOverviewResizeObserver = null;
 
     document.querySelectorAll('.project-detail').forEach((panel) => {
       [...panel.children].forEach((child) => {
@@ -4897,10 +5177,47 @@
       return clamp(1 - (rect.top - enterEnd) / (enterStart - enterEnd), 0, 1);
     }
 
-    function resetProjectDetailReveal() {
-      document.querySelectorAll('.project-detail-block').forEach((block) => {
-        block.style.opacity = '';
-        block.style.transform = '';
+    const PROJECT_SWITCH_MS = 400;
+    let projectSwitchTimer = null;
+    let openProjectSession = 0;
+    let projectSwitchSession = 0;
+
+    function getActiveProjectPanel() {
+      const activeLink = document.querySelector('.project-link.is-active');
+      const projectId = activeLink?.dataset.project;
+      if (!projectId) return null;
+      return document.querySelector(`.project-detail[data-project="${projectId}"]`);
+    }
+
+    function releaseListCollapseInstant() {
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          projectListSticky?.classList.remove('is-collapse-instant');
+          projectListSwitchLock = false;
+          scheduleProjectListThresholdMeasure();
+        });
+      });
+    }
+
+    function clearProjectSwitchState() {
+      if (projectSwitchTimer) {
+        clearTimeout(projectSwitchTimer);
+        projectSwitchTimer = null;
+      }
+      projectDetails?.classList.remove('is-project-switching');
+      projectDetails?.style.removeProperty('min-height');
+      detailPanels.forEach((panel) => {
+        panel.classList.remove('is-project-fading-out', 'is-project-fading-in');
+      });
+    }
+
+    function resetProjectDetailReveal(panel = null) {
+      const elements = panel
+        ? panel.querySelectorAll('.project-detail-block, .project-copy-caption')
+        : document.querySelectorAll('.project-detail-block, .project-copy-caption');
+      elements.forEach((el) => {
+        el.style.opacity = '';
+        el.style.transform = '';
       });
     }
 
@@ -4947,6 +5264,29 @@
       });
     }
 
+    function applyVerticalDetailReveal(el, revealTop, viewportHeight, { isMotionReel = false } = {}) {
+      const target = computeDetailBlockOpacity(el.getBoundingClientRect(), revealTop, viewportHeight);
+      const eased = easeOutCubic(target);
+      const translateY = (1 - eased) * 18;
+      const scale = 0.97 + eased * 0.03;
+
+      el.style.opacity = String(eased);
+      if (isMotionReel) {
+        el.style.transform = 'none';
+      } else {
+        el.style.transform = `translateY(${translateY}px) scale(${scale})`;
+      }
+    }
+
+    function applyCaptionReveal(caption, revealTop, viewportHeight) {
+      const target = computeDetailBlockOpacity(caption.getBoundingClientRect(), revealTop, viewportHeight);
+      const eased = easeOutCubic(target);
+      const translateX = (1 - eased) * 48;
+
+      caption.style.opacity = String(eased);
+      caption.style.transform = `translateX(${translateX}px)`;
+    }
+
     function updateProjectDetailReveal() {
       if (prefersReducedMotion) return;
 
@@ -4954,8 +5294,10 @@
         return;
       }
 
-      const activePanel = document.querySelector('.project-detail:not([hidden])');
-      if (!activePanel) return;
+      if (projectDetails.classList.contains('is-project-switching')) return;
+
+      const activePanel = getActiveProjectPanel();
+      if (!activePanel || activePanel.hidden) return;
 
       const viewportHeight = window.innerHeight;
       const revealTop = (projectListSticky?.getBoundingClientRect().bottom ?? 0) + 8;
@@ -4972,6 +5314,19 @@
           return;
         }
 
+        const hasCaptions = block.querySelector('.project-copy-caption');
+        if (hasCaptions) {
+          block.style.opacity = '1';
+          block.style.transform = 'none';
+          [...block.children].forEach((child) => {
+            if (child.classList.contains('project-copy-caption')) return;
+            applyVerticalDetailReveal(child, revealTop, viewportHeight, {
+              isMotionReel: child.classList.contains('motion-reel-block'),
+            });
+          });
+          return;
+        }
+
         const target = computeDetailBlockOpacity(block.getBoundingClientRect(), revealTop, viewportHeight);
         const eased = easeOutCubic(target);
         const translateY = (1 - eased) * 18;
@@ -4985,15 +5340,156 @@
           block.style.transform = `translateY(${translateY}px) scale(${scale})`;
         }
       });
+
+      activePanel.querySelectorAll('.project-copy-caption').forEach((caption) => {
+        applyCaptionReveal(caption, revealTop, viewportHeight);
+      });
     }
 
     function resetProjectListScrollState() {
       projectListSticky?.classList.remove('is-scrolled');
+      projectListSticky?.classList.remove('is-collapse-instant');
+      projectListSwitchLock = false;
       collapseScrollY = null;
       lastPipelineDetailScrollY = 0;
       allowProjectListCollapse = false;
       document.body.classList.remove('is-pipeline-scroll-locked');
       if (lenis) lenis.start();
+    }
+
+    function scrollToActiveProjectOverview({
+      immediate = true,
+      observeResize = false,
+      preserveListCollapse = false,
+      keepCollapseInstant = false,
+    } = {}) {
+      if (
+        !projectListSticky
+        || !projectDetails
+        || projectDetails.classList.contains('hidden')
+        || projectDetails.classList.contains('is-project-switching')
+        || !document.body.classList.contains('is-project-open')
+      ) {
+        return;
+      }
+
+      const panel = getActiveProjectPanel();
+      const overview = panel?.querySelector('.project-copy');
+      if (!panel || !overview) return;
+
+      projectSwitchScrollLock = true;
+      if (!keepCollapseInstant) {
+        projectListSticky.classList.add('is-collapse-instant');
+      }
+      if (preserveListCollapse) {
+        projectListSticky.classList.add('is-scrolled');
+      } else {
+        projectListSticky.classList.remove('is-scrolled');
+      }
+      void projectListSticky.offsetHeight;
+
+      const listHeight = projectListSticky.offsetHeight;
+      const overviewDocumentTop = overview.getBoundingClientRect().top + getScrollY();
+      const overviewGap = 8;
+      const target = Math.max(0, overviewDocumentTop - listHeight - overviewGap);
+
+      const maxScroll = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+      const clampedTarget = Math.min(target, maxScroll);
+
+      if (lenis) lenis.stop();
+
+      window.scrollTo(0, clampedTarget);
+      document.documentElement.scrollTop = clampedTarget;
+      document.body.scrollTop = clampedTarget;
+
+      if (lenis) {
+        lenis.scrollTo(clampedTarget, { immediate, force: true });
+        lenis.raf(performance.now());
+        lenis.start();
+      }
+
+      if (!keepCollapseInstant) {
+        projectListSticky.classList.remove('is-collapse-instant');
+      }
+      if (preserveListCollapse) {
+        projectListSticky.classList.add('is-scrolled');
+      }
+      projectSwitchScrollLock = false;
+
+      if (!projectListSwitchLock) {
+        scheduleProjectListThresholdMeasure();
+      }
+
+      if (!observeResize) return;
+
+      if (projectOverviewResizeObserver) {
+        projectOverviewResizeObserver.disconnect();
+        projectOverviewResizeObserver = null;
+      }
+
+      let resizeAttempts = 0;
+      const observer = new ResizeObserver(() => {
+        if (resizeAttempts > 10) {
+          observer.disconnect();
+          if (projectOverviewResizeObserver === observer) projectOverviewResizeObserver = null;
+          return;
+        }
+        resizeAttempts += 1;
+        scrollToActiveProjectOverview({
+          immediate: true,
+          observeResize: false,
+          preserveListCollapse,
+          keepCollapseInstant: projectListSwitchLock,
+        });
+      });
+
+      projectOverviewResizeObserver = observer;
+      observer.observe(panel);
+      observer.observe(projectDetails);
+      setTimeout(() => {
+        observer.disconnect();
+        if (projectOverviewResizeObserver === observer) projectOverviewResizeObserver = null;
+      }, 1500);
+    }
+
+    function scheduleScrollToActiveProjectOverview({
+      afterLayout = false,
+      preserveListCollapse = false,
+      keepCollapseInstant = false,
+      singlePass = false,
+    } = {}) {
+      if (singlePass) {
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            scrollToActiveProjectOverview({
+              immediate: true,
+              observeResize: true,
+              preserveListCollapse,
+              keepCollapseInstant,
+            });
+          });
+        });
+        return;
+      }
+
+      const run = (observeResize = false) => scrollToActiveProjectOverview({
+        immediate: true,
+        observeResize,
+        preserveListCollapse,
+        keepCollapseInstant,
+      });
+      const retryDelays = [0, 100, 300, 600];
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          retryDelays.forEach((delay, index) => {
+            setTimeout(() => run(index === 0), delay);
+          });
+        });
+      });
+      if (afterLayout) {
+        setTimeout(() => run(false), 680);
+        setTimeout(() => run(false), 950);
+      }
     }
 
     function enableProjectListCollapse() {
@@ -5012,8 +5508,8 @@
     }
 
     function shouldKeepProjectListCollapsed() {
-      const panel = document.querySelector('.project-detail:not([hidden])');
-      if (!panel) return false;
+      const panel = getActiveProjectPanel();
+      if (!panel || panel.hidden) return false;
       if (panel.classList.contains('is-pipeline-pinned')) return true;
       if (isPipelineHorizontallyEngaged(panel)) return true;
       if (isPipelineEntryPending(panel)) return true;
@@ -5028,7 +5524,7 @@
       return false;
     }
 
-    function ensurePipelineListCollapsed(panel = document.querySelector('.project-detail:not([hidden])'), instant = false) {
+    function ensurePipelineListCollapsed(panel = getActiveProjectPanel(), instant = false) {
       if (!projectListSticky || !document.body.classList.contains('is-project-open')) return;
 
       enableProjectListCollapse();
@@ -5054,8 +5550,11 @@
 
     function remeasureProjectListThreshold() {
       if (!projectListSticky || !projectDetails || projectDetails.classList.contains('hidden')) return;
+      if (projectDetails.classList.contains('is-project-switching')) return;
+      if (projectListSwitchLock) return;
 
-      const keepCollapsed = shouldKeepProjectListCollapsed();
+      const wasCollapsed = projectListSticky.classList.contains('is-scrolled');
+      const keepCollapsed = shouldKeepProjectListCollapsed() || wasCollapsed;
       if (!keepCollapsed) {
         projectListSticky.classList.remove('is-scrolled');
       }
@@ -5073,7 +5572,7 @@
           return height;
         })();
 
-      const activePanel = document.querySelector('.project-detail:not([hidden])');
+      const activePanel = getActiveProjectPanel();
       const overviewBlock = activePanel?.querySelector('.project-detail-block');
       const anchorRect = overviewBlock
         ? overviewBlock.getBoundingClientRect()
@@ -5083,6 +5582,8 @@
     }
 
     function scheduleProjectListThresholdMeasure() {
+      if (projectListSwitchLock) return;
+
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
           remeasureProjectListThreshold();
@@ -5092,6 +5593,10 @@
 
     function updateProjectListScrollState() {
       if (!projectListSticky) return;
+      if (projectSwitchScrollLock) return;
+      if (projectListSwitchLock) return;
+      if (projectListSticky.classList.contains('is-collapse-instant')) return;
+      if (projectDetails?.classList.contains('is-project-switching')) return;
 
       if (
         !document.body.classList.contains('is-project-open')
@@ -5113,8 +5618,9 @@
         return;
       }
 
-      const activePanel = document.querySelector('.project-detail:not([hidden])');
-      if (activePanel?.classList.contains('is-pipeline-runner-active')) {
+      const activePanel = getActiveProjectPanel();
+      if (!activePanel || activePanel.hidden) return;
+      if (activePanel.classList.contains('is-pipeline-runner-active')) {
         return;
       }
 
@@ -5337,8 +5843,8 @@
     function lockPipelineScrollPin() {
       if (prefersReducedMotion || pipelinePinLocking) return;
 
-      const panel = document.querySelector('.project-detail:not([hidden])');
-      if (!panel || !isPipelineRunnerActive(panel)) return;
+      const panel = getActiveProjectPanel();
+      if (!panel || panel.hidden || !isPipelineRunnerActive(panel)) return;
       if (isPipelineEntryPending(panel)) return;
       if (!panel.classList.contains('is-pipeline-pinned')) return;
 
@@ -5577,25 +6083,120 @@
       });
     }
 
-    function showProjectDetail(projectId) {
+    function showProjectDetail(projectId, { animate = false, onComplete } = {}) {
       if (!projectDetails || !projectId) return;
 
+      const switchSession = ++projectSwitchSession;
+      clearProjectSwitchState();
+
+      const incomingPanel = document.querySelector(`.project-detail[data-project="${projectId}"]`);
+      if (!incomingPanel) return;
+
+      let outgoingPanel = null;
+      detailPanels.forEach((panel) => {
+        if (!panel.hidden) outgoingPanel = panel;
+      });
+
+      const isSwitch = animate && outgoingPanel && outgoingPanel !== incomingPanel;
+
+      const finishOpen = () => {
+        if (switchSession !== projectSwitchSession) return;
+        onComplete?.();
+      };
+
       resetAllPipelineHubs();
-      resetProjectDetailReveal();
-      resetDvaDetailReveal();
       resetDvaMatrixPreview();
       projectDetails.classList.remove('hidden');
-      detailPanels.forEach((panel) => {
-        panel.hidden = panel.dataset.project !== projectId;
+
+      if (!isSwitch || prefersReducedMotion) {
+        detailPanels.forEach((panel) => {
+          panel.classList.remove('is-project-fading-out', 'is-project-fading-in');
+          panel.hidden = panel.dataset.project !== projectId;
+        });
+        resetProjectDetailReveal();
+        resetDvaDetailReveal();
+        primeDvaDetailReveal(incomingPanel);
+        hydrateLazyMedia(incomingPanel);
+        if (projectId === '03') {
+          scheduleDvaMatrixPreload?.();
+        }
+        finishOpen();
+        return;
+      }
+
+      resetDvaDetailReveal();
+      resetProjectDetailReveal(incomingPanel);
+
+      const overviewCopy = incomingPanel.querySelector(':scope > .project-copy');
+      if (overviewCopy) {
+        overviewCopy.style.opacity = '1';
+        overviewCopy.style.transform = 'none';
+      }
+
+      projectDetails.classList.add('is-project-switching');
+      const shellHeight = outgoingPanel.offsetHeight;
+      if (shellHeight > 0) {
+        projectDetails.style.minHeight = `${shellHeight}px`;
+      }
+
+      outgoingPanel.classList.remove('is-project-fading-in');
+      incomingPanel.hidden = false;
+      incomingPanel.classList.add('is-project-fading-in');
+
+      primeDvaDetailReveal(incomingPanel);
+      hydrateLazyMedia(incomingPanel);
+      if (projectId === '03') {
+        scheduleDvaMatrixPreload?.();
+      }
+
+      void incomingPanel.offsetHeight;
+
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          outgoingPanel.classList.add('is-project-fading-out');
+          incomingPanel.classList.remove('is-project-fading-in');
+        });
       });
-      primeDvaDetailReveal(document.querySelector(`.project-detail[data-project="${projectId}"]`));
+
+      projectSwitchTimer = setTimeout(() => {
+        if (switchSession !== projectSwitchSession) return;
+
+        outgoingPanel.hidden = true;
+        outgoingPanel.classList.remove('is-project-fading-out', 'is-project-fading-in');
+        incomingPanel.classList.remove('is-project-fading-in');
+        projectDetails.classList.remove('is-project-switching');
+
+        const nextHeight = incomingPanel.offsetHeight;
+        if (nextHeight > 0) {
+          projectDetails.style.minHeight = `${nextHeight}px`;
+        }
+
+        requestAnimationFrame(() => {
+          projectDetails.style.removeProperty('min-height');
+          if (overviewCopy) {
+            overviewCopy.style.opacity = '';
+            overviewCopy.style.transform = '';
+          }
+          projectSwitchTimer = null;
+          resetProjectDetailReveal(incomingPanel);
+          updateProjectDetailReveal();
+          if (!projectListSwitchLock) {
+            scheduleProjectListThresholdMeasure();
+          }
+          finishOpen();
+        });
+      }, PROJECT_SWITCH_MS);
     }
 
     function hideProjectDetail() {
+      projectSwitchSession += 1;
+      projectListSwitchLock = false;
+      clearProjectSwitchState();
       resetAllPipelineHubs();
       projectDetails?.classList.add('hidden');
       detailPanels.forEach((panel) => {
         panel.hidden = true;
+        panel.classList.remove('is-project-fading-out', 'is-project-fading-in');
       });
       resetProjectListScrollState();
       resetProjectDetailReveal();
@@ -5606,14 +6207,21 @@
     if (projectCover && projectLinks.length && hasFinePointer) {
       projectLinks.forEach((link) => {
         link.addEventListener('mouseenter', () => {
-          projectCover.src = link.dataset.cover;
-          const coverWidth = projectCover.offsetWidth;
-          coverX = mouseX - coverWidth - coverOffset;
-          coverY = mouseY + coverOffset;
-          projectCover.style.left = `${coverX}px`;
-          projectCover.style.top = `${coverY}px`;
-          projectCoverActive = true;
-          projectCover.classList.add('is-visible');
+          const coverSrc = link.dataset.cover;
+          if (!coverSrc) return;
+
+          preloadImageAsset(coverSrc, projectCoverCache).then(() => {
+            if (!link.matches(':hover')) return;
+
+            projectCover.src = coverSrc;
+            const coverWidth = projectCover.offsetWidth;
+            coverX = mouseX - coverWidth - coverOffset;
+            coverY = mouseY + coverOffset;
+            projectCover.style.left = `${coverX}px`;
+            projectCover.style.top = `${coverY}px`;
+            projectCoverActive = true;
+            projectCover.classList.add('is-visible');
+          });
         });
 
         link.addEventListener('mouseleave', () => {
@@ -5626,6 +6234,7 @@
     function closeProject() {
       if (!document.body.classList.contains('is-project-open')) return;
 
+      openProjectSession += 1;
       document.body.classList.remove('is-project-open');
       layoutShell?.classList.remove('is-project-open');
       projectLinks.forEach((item) => item.classList.remove('is-active'));
@@ -5639,8 +6248,23 @@
       const wasOpen = document.body.classList.contains('is-project-open');
       if (wasOpen && link.classList.contains('is-active')) return;
 
+      const session = ++openProjectSession;
+
+      const listWasCollapsed = Boolean(
+        wasOpen && projectListSticky?.classList.contains('is-scrolled'),
+      );
+      const collapseWasAllowed = allowProjectListCollapse;
+
       document.body.classList.add('is-project-open');
       layoutShell.classList.add('is-project-open');
+
+      if (wasOpen) {
+        projectListSwitchLock = true;
+        projectListSticky?.classList.add('is-collapse-instant');
+        if (listWasCollapsed) {
+          projectListSticky?.classList.add('is-scrolled');
+        }
+      }
 
       projectLinks.forEach((item) => {
         item.classList.toggle('is-active', item === link);
@@ -5650,8 +6274,34 @@
         item.classList.toggle('is-active-project', item.contains(link));
       });
 
-      showProjectDetail(link.dataset.project);
-      resetProjectListScrollState();
+      const finalizeProjectOpen = () => {
+        if (session !== openProjectSession) return;
+
+        if (wasOpen) {
+          allowProjectListCollapse = collapseWasAllowed;
+          scheduleScrollToActiveProjectOverview({
+            preserveListCollapse: listWasCollapsed,
+            keepCollapseInstant: true,
+            singlePass: true,
+          });
+          setTimeout(() => {
+            if (session !== openProjectSession) return;
+            releaseListCollapseInstant();
+          }, 900);
+        } else {
+          resetProjectListScrollState();
+          scheduleScrollToActiveProjectOverview({ afterLayout: true });
+          setTimeout(() => {
+            if (session !== openProjectSession) return;
+            releaseListCollapseInstant();
+          }, 1000);
+        }
+      };
+
+      showProjectDetail(link.dataset.project, {
+        animate: wasOpen,
+        onComplete: finalizeProjectOpen,
+      });
 
       projectCoverActive = false;
       projectCover?.classList.remove('is-visible');
@@ -5659,8 +6309,6 @@
       heroLines.forEach((line) => {
         line.style.transform = 'translate3d(0, 0, 0)';
       });
-
-      scheduleProjectListThresholdMeasure();
     }
 
     projectLinks.forEach((link) => {
@@ -5750,7 +6398,9 @@
       });
     }
 
-    if (!prefersReducedMotion) {
+    function initLenisScroll() {
+      if (prefersReducedMotion || lenis) return;
+
       lenis = new Lenis({
         duration: 1.15,
         easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
@@ -5774,7 +6424,7 @@
 
     function raf(time) {
       const pipelineEntryActive = Boolean(
-        document.querySelector('.project-detail:not([hidden])')?.dataset.pipelineEntryPending === '1'
+        getActiveProjectPanel()?.dataset.pipelineEntryPending === '1'
       );
       if (lenis && !pipelineEntryActive) lenis.raf(time);
       updateHeroParallax();
@@ -6333,8 +6983,18 @@
     const VIDEO_PACKAGE_DURATION_MS = 1600;
     const AWS_BRIEF_PHASE = 0.18;
     const AXIS_VIDEO_REVEAL_START = 0.82;
-    const AWS_BRIEF_TYPEWRITER_MS = 1500;
+    const AWS_BRIEF_AUTO_MS = 2000;
+    const GMP_UPLOAD_AUTO_MS = 5000;
     const GMP_MIN_VIRTUAL_SCROLL = 3600;
+
+    function isDemoInputAutoPlay(demo) {
+      const panel = demo?.closest('.project-detail');
+      if (!panel) return false;
+      const projectId = panel.dataset.project;
+      if (projectId === '01' && demo.hasAttribute('data-workflow-demo')) return true;
+      if (projectId === '02' && demo.hasAttribute('data-pipeline-demo')) return true;
+      return false;
+    }
 
     const pipelineTrackMotion = new WeakMap();
 
@@ -6525,6 +7185,12 @@
     function applyDemoWheelDelta(runner, demo, deltaY) {
       let progress = Number(runner.dataset.pipelineProgress || 0);
       if (progress >= 1 && deltaY > 0) return;
+      if (demo.inputAutoActive) return;
+
+      if (isDemoInputAutoPlay(demo)) {
+        const inputPhase = getDemoInputPhase(demo);
+        if (progress < inputPhase - 0.0001) return;
+      }
 
       const virtualScroll = getDemoVirtualScrollDistance(runner, demo);
       progress = clamp(progress + deltaY / virtualScroll, 0, 1);
@@ -6536,8 +7202,8 @@
       let touchStartY = null;
 
       const handlePipelineWheel = (deltaY, event) => {
-        const panel = document.querySelector('.project-detail:not([hidden])');
-        if (!panel || !isPipelineRunnerActive(panel)) return false;
+        const panel = getActiveProjectPanel();
+        if (!panel || panel.hidden || !isPipelineRunnerActive(panel)) return false;
 
         const runner = panel.querySelector('[data-pipeline-runner]');
         if (!runner) return false;
@@ -6549,6 +7215,8 @@
 
           event?.preventDefault();
           snapPipelinePin(panel, { force: true });
+
+          if (activeDemo?.inputAutoActive) return true;
 
           if (activeDemo?.applyScrollProgress) {
             applyDemoWheelDelta(runner, activeDemo, deltaY);
@@ -7586,18 +8254,29 @@
         let timers = [];
         let packageRaf = null;
         let generatingRaf = null;
+        let briefAutoRaf = null;
         let briefRevealed = false;
         let outputRevealed = false;
         let generatingDone = false;
         let axisLayoutMeasured = false;
+        demo.inputAutoActive = false;
 
         demo.classList.add('is-scroll-driven');
 
         const isActiveSession = (session) => session === runSession;
+        const isAutoBriefProject = () => demo.closest('.project-detail')?.dataset.project === '01';
 
         const clearTimers = () => {
           timers.forEach((timer) => window.clearTimeout(timer));
           timers = [];
+        };
+
+        const cancelBriefAuto = () => {
+          if (briefAutoRaf != null) {
+            cancelAnimationFrame(briefAutoRaf);
+            briefAutoRaf = null;
+          }
+          demo.inputAutoActive = false;
         };
 
         const removeBriefCursor = () => {
@@ -7644,7 +8323,7 @@
           }
 
           const chars = [...briefText];
-          const stepMs = AWS_BRIEF_TYPEWRITER_MS / Math.max(chars.length, 1);
+          const stepMs = AWS_BRIEF_AUTO_MS / Math.max(chars.length, 1);
           const session = runSession;
           let index = 0;
 
@@ -7668,6 +8347,63 @@
           };
 
           tick();
+        };
+
+        const completeAutoBriefPhase = () => {
+          const runner = demo.closest('[data-pipeline-runner]');
+          if (!runner) return;
+          runner.dataset.pipelineProgress = String(AWS_BRIEF_PHASE);
+          applyScrollProgress(AWS_BRIEF_PHASE);
+        };
+
+        const startAutoBriefSequence = () => {
+          if (!isAutoBriefProject() || !briefEl) return;
+
+          cancelBriefAuto();
+          briefRevealed = false;
+          briefEl.textContent = '';
+          removeBriefCursor();
+          demo.classList.remove('is-ingesting', 'is-parsed', 'is-scroll-engaged');
+
+          if (prefersReducedMotion) {
+            finishBriefReveal();
+            completeAutoBriefPhase();
+            return;
+          }
+
+          const chars = [...briefText];
+          const session = runSession;
+          demo.inputAutoActive = true;
+          demo.classList.add('is-ingesting');
+          ensureBriefCursor();
+          let briefStartTime = null;
+
+          const tick = (now) => {
+            if (!isActiveSession(session) || !isDemoPlaybackAllowed(demo)) {
+              cancelBriefAuto();
+              return;
+            }
+
+            if (briefStartTime === null) briefStartTime = now;
+            const t = Math.min((now - briefStartTime) / AWS_BRIEF_AUTO_MS, 1);
+            const charCount = Math.max(1, Math.floor(t * chars.length));
+            const cursor = ensureBriefCursor();
+            briefEl.textContent = chars.slice(0, charCount).join('');
+            if (cursor) briefEl.appendChild(cursor);
+
+            if (t >= 1) {
+              briefRevealed = true;
+              finishBriefReveal();
+              demo.inputAutoActive = false;
+              briefAutoRaf = null;
+              completeAutoBriefPhase();
+              return;
+            }
+
+            briefAutoRaf = requestAnimationFrame(tick);
+          };
+
+          briefAutoRaf = requestAnimationFrame(tick);
         };
 
         const cancelPackageRaf = () => {
@@ -7907,6 +8643,7 @@
         const resetDemo = () => {
           runSession += 1;
           clearTimers();
+          cancelBriefAuto();
           cancelPackageRaf();
           cancelGeneratingRaf();
           briefRevealed = false;
@@ -7940,7 +8677,9 @@
         };
 
         const revealBrief = () => {
-          typewriterRevealBrief();
+          if (!isAutoBriefProject()) {
+            typewriterRevealBrief();
+          }
         };
 
         const runPackage = async (session) => {
@@ -7997,10 +8736,18 @@
           const runner = demo.closest('[data-pipeline-runner]');
           if (!runner) return;
 
-          revealBrief();
+          if (demo.inputAutoActive) return;
 
-          if (progress > 0.0005) {
-            demo.classList.add('is-scroll-engaged');
+          if (isAutoBriefProject()) {
+            if (progress < AWS_BRIEF_PHASE - 0.0001) return;
+            if (progress > AWS_BRIEF_PHASE + 0.0005) {
+              demo.classList.add('is-scroll-engaged');
+            }
+          } else {
+            revealBrief();
+            if (progress > 0.0005) {
+              demo.classList.add('is-scroll-engaged');
+            }
           }
 
           const targetOffset = getPipelineTrackTargetOffset(runner, demo, progress);
@@ -8049,11 +8796,26 @@
           }
 
           if (prefersReducedMotion) {
+            if (isAutoBriefProject() && briefEl) {
+              briefRevealed = true;
+              const briefHtml = workflowBriefHtml[demoId];
+              if (briefHtml) {
+                briefEl.innerHTML = briefHtml;
+              } else {
+                briefEl.textContent = briefText;
+              }
+              demo.classList.add('is-parsed');
+            }
             applyScrollProgress(1);
             return;
           }
 
           applyScrollProgress(0);
+          if (isAutoBriefProject()) {
+            startAutoBriefSequence();
+          } else {
+            revealBrief();
+          }
         };
 
         demo.resetDemo = resetDemo;
@@ -8150,14 +8912,25 @@ Dialogue: Mona Lisa: "Fine, keep your fizzy water." Girl: "It complements my pea
         let timers = [];
         let generatingDone = false;
         let generatingRaf = null;
+        let uploadAutoRaf = null;
+        demo.inputAutoActive = false;
 
         demo.classList.add('is-scroll-driven');
 
         const isActiveSession = (session) => session === runSession;
+        const isAutoUploadProject = () => demo.closest('.project-detail')?.dataset.project === '02';
 
         const clearTimers = () => {
           timers.forEach((timer) => window.clearTimeout(timer));
           timers = [];
+        };
+
+        const cancelUploadAuto = () => {
+          if (uploadAutoRaf != null) {
+            cancelAnimationFrame(uploadAutoRaf);
+            uploadAutoRaf = null;
+          }
+          demo.inputAutoActive = false;
         };
 
         const wait = (ms) => new Promise((resolve) => {
@@ -8317,6 +9090,12 @@ Dialogue: Mona Lisa: "Fine, keep your fizzy water." Girl: "It complements my pea
           const runner = demo.closest('[data-pipeline-runner]');
           if (!runner) return;
 
+          if (demo.inputAutoActive) return;
+
+          if (isAutoUploadProject() && progress < GMP_UPLOAD_PHASE - 0.0001) {
+            return;
+          }
+
           const uploadT = clamp(progress / GMP_UPLOAD_PHASE, 0, 1);
           applyUploadProgress(uploadT);
 
@@ -8328,6 +9107,52 @@ Dialogue: Mona Lisa: "Fine, keep your fizzy water." Girl: "It complements my pea
           applyVideoRevealProgress(moveT);
         };
 
+        const completeAutoUploadPhase = () => {
+          const runner = demo.closest('[data-pipeline-runner]');
+          if (!runner) return;
+          runner.dataset.pipelineProgress = String(GMP_UPLOAD_PHASE);
+          applyScrollProgress(GMP_UPLOAD_PHASE);
+        };
+
+        const startAutoUploadSequence = () => {
+          if (!isAutoUploadProject()) return;
+
+          cancelUploadAuto();
+          applyUploadProgress(0);
+
+          if (prefersReducedMotion) {
+            applyUploadProgress(1);
+            completeAutoUploadPhase();
+            return;
+          }
+
+          const session = runSession;
+          demo.inputAutoActive = true;
+          let uploadStartTime = null;
+
+          const tick = (now) => {
+            if (!isActiveSession(session) || !isDemoPlaybackAllowed(demo)) {
+              cancelUploadAuto();
+              return;
+            }
+
+            if (uploadStartTime === null) uploadStartTime = now;
+            const t = Math.min((now - uploadStartTime) / GMP_UPLOAD_AUTO_MS, 1);
+            applyUploadProgress(t);
+
+            if (t >= 1) {
+              demo.inputAutoActive = false;
+              uploadAutoRaf = null;
+              completeAutoUploadPhase();
+              return;
+            }
+
+            uploadAutoRaf = requestAnimationFrame(tick);
+          };
+
+          uploadAutoRaf = requestAnimationFrame(tick);
+        };
+
         demo.refreshGmpScrollVisuals = (moveT) => {
           updatePipelineFlowOpacities(moveT);
           applyVideoRevealProgress(moveT);
@@ -8335,6 +9160,7 @@ Dialogue: Mona Lisa: "Fine, keep your fizzy water." Girl: "It complements my pea
 
         const resetDemo = () => {
           runSession += 1;
+          cancelUploadAuto();
           resetVideoReveal();
 
           demo.className = 'project-media-block gmp-pipeline-demo space-y-2 is-scroll-driven';
@@ -8387,6 +9213,9 @@ Dialogue: Mona Lisa: "Fine, keep your fizzy water." Girl: "It complements my pea
           }
 
           applyScrollProgress(0);
+          if (isAutoUploadProject()) {
+            startAutoUploadSequence();
+          }
         };
 
         demo.resetDemo = resetDemo;
@@ -8465,9 +9294,16 @@ Dialogue: Mona Lisa: "Fine, keep your fizzy water." Girl: "It complements my pea
           .filter(Boolean)
           .forEach((src) => previewSources.add(src));
       });
-      previewSources.forEach((src) => {
-        preloadDvaMatrixImage(src).catch(() => {});
-      });
+      scheduleDvaMatrixPreload = (() => {
+        let started = false;
+        return () => {
+          if (started) return;
+          started = true;
+          previewSources.forEach((src) => {
+            preloadDvaMatrixImage(src).catch(() => {});
+          });
+        };
+      })();
 
       const shouldExpandPreviewLeft = (node, previewEl) => {
         const qx = Number.parseFloat(node.style.getPropertyValue('--dva-qx'));
@@ -8624,17 +9460,99 @@ Dialogue: Mona Lisa: "Fine, keep your fizzy water." Girl: "It complements my pea
       });
     }
 
-    initCjkTypography();
-    initBracketTypography();
-    initWorkflowStudyDemo();
-    initPipelineDemo();
-    initPipelineHub();
-    initPipelineHorizontalScroll();
-    initMinimalVideoPlayers();
-    initDvaMatrixHover();
-    initYouTubeEmbeds();
+    function initSiteLoader(onComplete) {
+      const loader = document.getElementById('site-loader');
+      const percentEl = document.getElementById('site-loader-percent');
 
-    requestAnimationFrame(raf);
+      const finish = () => {
+        loader?.remove();
+        document.documentElement.classList.remove('is-site-loading');
+        onComplete();
+      };
+
+      if (!loader || prefersReducedMotion) {
+        finish();
+        return;
+      }
+
+      document.documentElement.classList.add('is-site-loading');
+
+      const criticalAssets = [
+        'assets/hero-hover.jpg',
+        'assets/covers/cover-01.png',
+      ];
+      const totalSteps = criticalAssets.length + 1;
+      let completedSteps = 0;
+      let displayedProgress = 0;
+      let targetProgress = 0;
+      let progressFrame = 0;
+      const startedAt = performance.now();
+      const minDuration = 900;
+
+      const renderProgress = () => {
+        displayedProgress += (targetProgress - displayedProgress) * 0.22;
+        if (Math.abs(targetProgress - displayedProgress) < 0.4) {
+          displayedProgress = targetProgress;
+        }
+        if (percentEl) {
+          percentEl.textContent = `${Math.round(displayedProgress)}%`;
+        }
+        if (!loader.isConnected || loader.classList.contains('is-revealing')) return;
+        progressFrame = requestAnimationFrame(renderProgress);
+      };
+
+      progressFrame = requestAnimationFrame(renderProgress);
+
+      const bumpProgress = () => {
+        completedSteps += 1;
+        targetProgress = Math.min(100, Math.round((completedSteps / totalSteps) * 100));
+        if (completedSteps >= totalSteps) {
+          scheduleReveal();
+        }
+      };
+
+      const scheduleReveal = () => {
+        const elapsed = performance.now() - startedAt;
+        window.setTimeout(beginReveal, Math.max(0, minDuration - elapsed));
+      };
+
+      const beginReveal = () => {
+        targetProgress = 100;
+        window.setTimeout(() => {
+          loader.classList.add('is-revealing', 'is-complete');
+          document.documentElement.classList.remove('is-site-loading');
+          window.setTimeout(() => {
+            cancelAnimationFrame(progressFrame);
+            loader.remove();
+            onComplete();
+          }, prefersReducedMotion ? 280 : 1120);
+        }, 260);
+      };
+
+      document.fonts.ready.then(bumpProgress).catch(bumpProgress);
+      criticalAssets.forEach((src) => {
+        preloadImageAsset(src).then(bumpProgress).catch(bumpProgress);
+      });
+    }
+
+    function bootApp() {
+      initCjkTypography();
+      initBracketTypography();
+      initWorkflowStudyDemo();
+      initPipelineDemo();
+      initPipelineHub();
+      initPipelineHorizontalScroll();
+      initMinimalVideoPlayers();
+      initDvaMatrixHover();
+      initYouTubeEmbeds();
+      preloadProjectCoversIdle();
+      requestAnimationFrame(raf);
+    }
+
+    initSiteLoader(() => {
+      initLenisScroll();
+      bootApp();
+    });
   </script>
 
 </body>
