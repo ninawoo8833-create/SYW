@@ -2750,7 +2750,7 @@
     }
 
     html.is-pipeline-scroll-locked {
-      overflow: hidden;
+      overscroll-behavior: none;
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -3146,7 +3146,7 @@
 
     #project-list-sticky {
       padding-top: 2px;
-      transition: padding 1.1s cubic-bezier(0.22, 1, 0.36, 1);
+      transition: padding 0.8s cubic-bezier(0.22, 1, 0.36, 1);
     }
 
     #project-list-sticky .project-list-header,
@@ -3155,10 +3155,10 @@
       overflow: hidden;
       transform-origin: right center;
       transition:
-        opacity 1.1s cubic-bezier(0.22, 1, 0.36, 1),
-        transform 1.1s cubic-bezier(0.22, 1, 0.36, 1),
-        max-height 1.1s cubic-bezier(0.22, 1, 0.36, 1),
-        border-color 1.1s cubic-bezier(0.22, 1, 0.36, 1);
+        opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1),
+        transform 0.8s cubic-bezier(0.22, 1, 0.36, 1),
+        max-height 0.8s cubic-bezier(0.22, 1, 0.36, 1),
+        border-color 0.8s cubic-bezier(0.22, 1, 0.36, 1);
     }
 
     body.is-project-open #project-list-sticky.is-scrolled {
@@ -3183,7 +3183,7 @@
     }
 
     #project-list-sticky [role="list"] > li .tabular-nums {
-      transition: opacity 1.1s cubic-bezier(0.22, 1, 0.36, 1), max-height 1.1s cubic-bezier(0.22, 1, 0.36, 1);
+      transition: opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1), max-height 0.8s cubic-bezier(0.22, 1, 0.36, 1);
     }
 
     body.is-project-open #project-list-sticky.is-scrolled [role="list"] > li.is-active-project .tabular-nums {
@@ -5211,13 +5211,19 @@
     const detailPanels = document.querySelectorAll('.project-detail');
     const projectListSticky = document.getElementById('project-list-sticky');
     let collapseScrollY = null;
+    let collapsePinScrollY = null;
     let lastPipelineDetailScrollY = 0;
     let allowProjectListCollapse = false;
     let projectSwitchScrollLock = false;
     let projectListSwitchLock = false;
     let projectListInteractionLock = false;
     let projectOverviewResizeObserver = null;
+    let projectListExpandedHeight = null;
+    let projectListCollapsedHeight = null;
+    let projectListCollapseAnimTimer = null;
 
+    const PROJECT_LIST_COLLAPSE_MS = 800;
+    const PROJECT_LIST_COLLAPSE_EXPAND_BUFFER = 32;
     const PROJECT_OPEN_SCROLL_DURATION = 1.15;
     const projectOpenScrollEase = (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t));
 
@@ -5260,16 +5266,30 @@
       return document.querySelector(`.project-detail[data-project="${projectId}"]`);
     }
 
+    function invalidateProjectListHeightCache() {
+      projectListExpandedHeight = null;
+      projectListCollapsedHeight = null;
+    }
+
     function measureProjectListHeight(collapsed) {
       if (!projectListSticky) return 0;
 
+      const cached = collapsed ? projectListCollapsedHeight : projectListExpandedHeight;
+      if (cached !== null) return cached;
+
       const wantScrolled = Boolean(collapsed);
       if (projectListSticky.classList.contains('is-scrolled') === wantScrolled) {
-        return projectListSticky.offsetHeight;
+        const height = projectListSticky.offsetHeight;
+        if (collapsed) projectListCollapsedHeight = height;
+        else projectListExpandedHeight = height;
+        return height;
       }
 
       if (projectListSticky.classList.contains('is-project-list-locked')) {
-        return projectListSticky.offsetHeight;
+        const height = projectListSticky.offsetHeight;
+        if (collapsed) projectListCollapsedHeight = height;
+        else projectListExpandedHeight = height;
+        return height;
       }
 
       const wasScrolled = projectListSticky.classList.contains('is-scrolled');
@@ -5281,6 +5301,9 @@
       const height = projectListSticky.offsetHeight;
       projectListSticky.classList.toggle('is-scrolled', wasScrolled);
       if (!hadInstant) projectListSticky.classList.remove('is-collapse-instant');
+
+      if (collapsed) projectListCollapsedHeight = height;
+      else projectListExpandedHeight = height;
 
       return height;
     }
@@ -5320,28 +5343,49 @@
       collapseScrollY = computeCollapseScrollThreshold(panel);
     }
 
+    function shouldForceProjectListCollapsed(panel = getActiveProjectPanel()) {
+      if (!panel || panel.hidden) return false;
+      return panel.classList.contains('is-pipeline-pinned');
+    }
+
     function shouldCollapseProjectList() {
       if (!allowProjectListCollapse) return false;
 
       const panel = getActiveProjectPanel();
       if (!panel || panel.hidden) return false;
-      if (panel.classList.contains('is-pipeline-pinned') || isPipelineRunnerActive(panel)) {
-        return true;
-      }
 
+      const scrollY = getScrollY();
       const isCollapsed = projectListSticky?.classList.contains('is-scrolled');
+      const pinned = panel.classList.contains('is-pipeline-pinned');
+
+      if (pinned) return true;
 
       if (isCollapsed) {
-        if (collapseScrollY === null) {
-          collapseScrollY = Math.max(0, getScrollY() - 2);
+        if (collapsePinScrollY === null) {
+          collapsePinScrollY = Math.max(0, scrollY);
         }
-        return getScrollY() > collapseScrollY + 1;
+        return scrollY > collapsePinScrollY - PROJECT_LIST_COLLAPSE_EXPAND_BUFFER;
       }
 
       if (!canFitExpandedProjectList()) return true;
       if (collapseScrollY === null) refreshCollapseScrollThreshold(panel);
       if (collapseScrollY === null) return false;
-      return getScrollY() > collapseScrollY + 1;
+      return scrollY > collapseScrollY + 1;
+    }
+
+    function lockProjectListCollapseAnimation() {
+      projectListInteractionLock = true;
+      if (projectListCollapseAnimTimer) clearTimeout(projectListCollapseAnimTimer);
+      projectListCollapseAnimTimer = setTimeout(() => {
+        projectListCollapseAnimTimer = null;
+        projectListInteractionLock = false;
+        if (!projectListSticky?.classList.contains('is-scrolled')) {
+          const panel = getActiveProjectPanel();
+          const computed = computeCollapseScrollThreshold(panel);
+          const scrollY = getScrollY();
+          collapseScrollY = Math.max(computed, scrollY);
+        }
+      }, PROJECT_LIST_COLLAPSE_MS);
     }
 
     function applyProjectListCollapseState({ instant = false, keepInstant = false, forceWhileLocked = false } = {}) {
@@ -5356,12 +5400,21 @@
 
       if (shouldCollapse) {
         projectListSticky.classList.add('is-scrolled');
-        collapseScrollY = Math.max(0, getScrollY() - 2);
+        collapsePinScrollY = Math.max(0, getScrollY());
+        if (!instant) lockProjectListCollapseAnimation();
       } else {
         projectListSticky.classList.remove('is-scrolled');
-        requestAnimationFrame(() => {
-          refreshCollapseScrollThreshold();
-        });
+        collapsePinScrollY = null;
+        collapseScrollY = getScrollY();
+        if (instant) {
+          requestAnimationFrame(() => {
+            const panel = getActiveProjectPanel();
+            const computed = computeCollapseScrollThreshold(panel);
+            collapseScrollY = Math.max(computed, getScrollY());
+          });
+        } else {
+          lockProjectListCollapseAnimation();
+        }
       }
 
       void projectListSticky.offsetHeight;
@@ -5593,7 +5646,6 @@
       }
 
       if (projectDetails.classList.contains('is-project-switching')) return;
-      if (projectListInteractionLock) return;
 
       const activePanel = getActiveProjectPanel();
       if (!activePanel || activePanel.hidden) return;
@@ -5664,7 +5716,13 @@
       projectListSticky?.classList.remove('is-project-list-locked');
       projectListSwitchLock = false;
       projectListInteractionLock = false;
+      if (projectListCollapseAnimTimer) {
+        clearTimeout(projectListCollapseAnimTimer);
+        projectListCollapseAnimTimer = null;
+      }
+      invalidateProjectListHeightCache();
       collapseScrollY = null;
+      collapsePinScrollY = null;
       lastPipelineDetailScrollY = 0;
       allowProjectListCollapse = false;
       setPipelineScrollLocked(false);
@@ -5804,7 +5862,6 @@
     function enableProjectListCollapse() {
       if (!document.body.classList.contains('is-project-open')) return;
       allowProjectListCollapse = true;
-      refreshCollapseScrollThreshold();
     }
 
     function isPipelineHorizontallyEngaged(panel) {
@@ -5818,16 +5875,42 @@
     }
 
     function shouldKeepProjectListCollapsed() {
-      const panel = getActiveProjectPanel();
-      if (!panel || panel.hidden) return false;
-      return panel.classList.contains('is-pipeline-pinned') || isPipelineRunnerActive(panel);
+      return shouldForceProjectListCollapsed();
+    }
+
+    function expandProjectListFromPipeline(panel = getActiveProjectPanel()) {
+      if (!projectListSticky || !document.body.classList.contains('is-project-open')) return;
+
+      enableProjectListCollapse();
+      projectListSticky.classList.remove('is-scrolled');
+      collapsePinScrollY = null;
+      const scrollY = getScrollY();
+      const computed = computeCollapseScrollThreshold(panel);
+      collapseScrollY = Math.max(Number.isFinite(computed) ? computed : scrollY, scrollY);
+      void projectListSticky.offsetHeight;
     }
 
     function ensurePipelineListCollapsed(panel = getActiveProjectPanel(), instant = false) {
       if (!projectListSticky || !document.body.classList.contains('is-project-open')) return;
 
       enableProjectListCollapse();
-      applyProjectListCollapseState({ instant });
+
+      if (isPipelineRunnerActive(panel) || panel?.classList.contains('is-pipeline-pinned')) {
+        if (!projectListSticky.classList.contains('is-scrolled')) {
+          if (instant) projectListSticky.classList.add('is-collapse-instant');
+          projectListSticky.classList.add('is-scrolled');
+          collapsePinScrollY = Math.max(0, getScrollY());
+          if (!instant) lockProjectListCollapseAnimation();
+          if (instant) {
+            requestAnimationFrame(() => {
+              projectListSticky?.classList.remove('is-collapse-instant');
+            });
+          }
+        }
+      } else {
+        applyProjectListCollapseState({ instant });
+      }
+
       void projectListSticky.offsetHeight;
 
       if (panel && isPipelineRunnerActive(panel)) {
@@ -5869,10 +5952,6 @@
 
       const panel = getActiveProjectPanel();
       if (!panel || panel.hidden) return;
-
-      if (isPipelineRunnerActive(panel) && !panel.classList.contains('is-pipeline-pinned')) {
-        return;
-      }
 
       if (collapseScrollY === null) {
         refreshCollapseScrollThreshold(panel);
@@ -6042,7 +6121,7 @@
     function snapPipelinePin(panel, { force = false } = {}) {
       const runner = panel?.querySelector('[data-pipeline-runner]');
       if (!panel || !isPipelineRunnerActive(panel)) return;
-      if (isPipelineEntryPending(panel)) return;
+      if (isPipelineEntryPending(panel) && !force) return;
 
       const aligned = refreshPipelinePin(panel, { stopLenis: force });
       if (!aligned) return;
@@ -6070,6 +6149,9 @@
       if (!document.querySelector('.project-detail.is-pipeline-pinned')) {
         setPipelineScrollLocked(false);
       }
+
+      collapsePinScrollY = Math.max(0, getScrollY());
+      requestAnimationFrame(() => updateProjectListScrollState());
     }
 
     function lockPipelineScrollPin() {
@@ -6130,6 +6212,16 @@
       });
     }
 
+    function expandProjectListFromPipeline(panel = getActiveProjectPanel()) {
+      if (!projectListSticky || !document.body.classList.contains('is-project-open')) return;
+
+      enableProjectListCollapse();
+      projectListSticky.classList.remove('is-scrolled');
+      collapsePinScrollY = null;
+      void projectListSticky.offsetHeight;
+      refreshCollapseScrollThreshold(panel);
+    }
+
     function resetPipelineHubView(panel, { restoreScroll = true } = {}) {
       if (!panel) return;
 
@@ -6141,7 +6233,6 @@
       const anchorScrollY = panel.classList.contains('is-pipeline-pinned') && Number.isFinite(storedPinY)
         ? storedPinY
         : getScrollY();
-      const shouldCollapseList = restoreScroll && collapseScrollY !== null && anchorScrollY > collapseScrollY + 1;
 
       pauseAllPipelineRunnerVideos();
 
@@ -6159,6 +6250,8 @@
       runner.hidden = true;
       void hub.offsetHeight;
 
+      expandProjectListFromPipeline(panel);
+
       if (!restoreScroll) return;
 
       lastPipelineDetailScrollY = anchorScrollY;
@@ -6170,11 +6263,7 @@
         requestAnimationFrame(() => {
           restoreScrollPosition(anchorScrollY);
 
-          if (shouldCollapseList) {
-            ensurePipelineListCollapsed(panel);
-          } else {
-            scheduleProjectListThresholdMeasure();
-          }
+          scheduleProjectListThresholdMeasure();
 
           if (lenis) lenis.start();
         });
@@ -6198,6 +6287,7 @@
         measurePipelineViewport(runner);
       }
       demo.startScrollReveal();
+      demo.applyScrollProgress?.(Number(runner?.dataset.pipelineProgress || 0));
     }
 
     function enterPipelineRunnerView(panel, runner, activeDemo, attempt = 0) {
@@ -6248,13 +6338,17 @@
         updatePipelinePinMetrics(panel);
         refreshPipelinePin(panel, { stopLenis: true });
         layoutPipelineRunner(runner);
+        measurePipelineViewport(runner);
         schedulePipelineViewportMeasure(runner);
 
         const active = activeDemo ?? getActivePipelineDemo(runner);
         if (initial) {
           bootPipelineScrollReveal(active, runner);
+        } else {
+          active?.refreshAxisViewportOpacities?.();
+          active?.refreshGmpViewportOpacities?.();
+          active?.applyScrollProgress?.(Number(runner.dataset.pipelineProgress || 0));
         }
-        active?.applyScrollProgress?.(Number(runner.dataset.pipelineProgress || 0));
         syncLenisToPipelinePin(panel);
       };
 
@@ -6320,7 +6414,6 @@
 
           requestAnimationFrame(() => {
             requestAnimationFrame(() => {
-              bootPipelineScrollReveal(activeDemo, runner);
               enterPipelineRunnerView(panel, runner, activeDemo);
             });
           });
@@ -6344,6 +6437,7 @@
 
       const switchSession = ++projectSwitchSession;
       clearProjectSwitchState();
+      setPipelineScrollLocked(false);
 
       const incomingPanel = document.querySelector(`.project-detail[data-project="${projectId}"]`);
       if (!incomingPanel) return;
@@ -6513,6 +6607,7 @@
         projectListSwitchLock = true;
         setPipelineScrollLocked(false);
         projectListSticky?.classList.add('is-project-list-locked', 'is-collapse-instant');
+        invalidateProjectListHeightCache();
       }
 
       projectLinks.forEach((item) => {
@@ -6554,7 +6649,13 @@
     });
 
     document.addEventListener('wheel', (event) => {
-      if (event.deltaY > 0) enableProjectListCollapse();
+      if (event.deltaY > 0) {
+        enableProjectListCollapse();
+        return;
+      }
+      if (event.deltaY < 0 && projectListSticky?.classList.contains('is-scrolled')) {
+        requestAnimationFrame(() => updateProjectListScrollState());
+      }
     }, { passive: true });
 
     let projectListTouchStartY = null;
@@ -6566,7 +6667,11 @@
     document.addEventListener('touchmove', (event) => {
       if (projectListTouchStartY === null) return;
       const deltaY = projectListTouchStartY - (event.touches[0]?.clientY ?? projectListTouchStartY);
-      if (deltaY > 0) enableProjectListCollapse();
+      if (deltaY > 0) {
+        enableProjectListCollapse();
+      } else if (deltaY < -8 && projectListSticky?.classList.contains('is-scrolled')) {
+        requestAnimationFrame(() => updateProjectListScrollState());
+      }
     }, { passive: true });
 
     document.addEventListener('keydown', (event) => {
@@ -6597,14 +6702,8 @@
     }
 
     function getScrollY() {
-      if (!lenis) return window.scrollY;
-
-      const pipelineLocked = document.body.classList.contains('is-pipeline-scroll-locked');
-      if (pipelineLocked) {
-        return window.scrollY || document.documentElement.scrollTop || lenis.scroll;
-      }
-
-      return lenis.scroll;
+      if (lenis) return lenis.scroll;
+      return window.scrollY || document.documentElement.scrollTop || 0;
     }
 
     const heroSection = document.getElementById('hero-section');
@@ -6619,8 +6718,10 @@
     ];
 
     window.addEventListener('resize', () => {
+      invalidateProjectListHeightCache();
       if (document.body.classList.contains('is-project-open')) {
         collapseScrollY = null;
+        collapsePinScrollY = null;
       }
     });
 
@@ -6654,9 +6755,9 @@
         smoothWheel: true,
         wheelMultiplier: 0.9,
         virtualScroll: (data) => {
-          if (data.event?.defaultPrevented) return false;
           if (!pipelineWheelHandler) return true;
-          if (dispatchPipelineWheel(data.deltaY, data.event)) return false;
+          const deltaY = data.event ? getRawWheelDelta(data.event) : data.deltaY;
+          if (dispatchPipelineWheel(deltaY, data.event)) return false;
           return true;
         },
       });
@@ -7038,6 +7139,11 @@
       const track = getPipelineTrack(runner);
       if (!viewport || !track) return 0;
 
+      if (viewport.clientWidth < 4) {
+        requestAnimationFrame(() => measureAwsPipelineTrack(runner, demo));
+        return 0;
+      }
+
       let colWidth = viewport.clientWidth * 0.333333;
       const availableHeight = getPipelineAvailableHeight(runner);
 
@@ -7051,6 +7157,7 @@
         }
       }
 
+      colWidth = Math.max(PIPELINE_MIN_COL_WIDTH, colWidth);
       viewport.style.setProperty('--pipeline-col', `${colWidth}px`);
 
       if (isAxisWorkflowDemo(demo) && availableHeight > 0) {
@@ -7302,7 +7409,8 @@
       if (!maxOffset) return 0;
 
       if (isAxisWorkflowDemo(demo)) {
-        return progress * maxOffset;
+        const moveT = clamp((progress - AWS_BRIEF_PHASE) / (1 - AWS_BRIEF_PHASE), 0, 1);
+        return moveT * maxOffset;
       }
 
       if (demo?.hasAttribute('data-pipeline-demo')) {
@@ -7410,7 +7518,7 @@
 
       const sceneSpan = 0.72 / scenes.length;
       const lastIndex = scenes.length - 1;
-      return 0.22 + lastIndex * sceneSpan + sceneSpan * 0.7;
+      return lastIndex * sceneSpan + sceneSpan * 0.7;
     }
 
     function getGmpVideoRevealT(moveT, sceneCompleteT) {
@@ -7465,6 +7573,10 @@
       if (progress >= 1 && normalizedDelta > 0) return;
       if (demo.inputAutoActive) return;
 
+      if (Number(runner.dataset.pipelineMaxOffset || 0) <= 0) {
+        measurePipelineViewport(runner);
+      }
+
       if (isDemoInputAutoPlay(demo)) {
         const inputPhase = getDemoInputPhase(demo);
         if (progress < inputPhase - 0.0001) return;
@@ -7478,12 +7590,13 @@
 
     function dispatchPipelineWheel(deltaY, event) {
       if (!pipelineWheelHandler) return false;
+      if (event?.__pipelineWheelHandled) return true;
 
       const handled = pipelineWheelHandler(deltaY, event);
       if (!handled) return false;
 
-      event?.preventDefault();
-      event?.stopImmediatePropagation?.();
+      if (event) event.__pipelineWheelHandled = true;
+      event?.preventDefault?.();
       return true;
     }
 
@@ -7500,10 +7613,14 @@
         const activeDemo = getActivePipelineDemo(runner);
         const normalizedDelta = normalizePipelineWheelDelta(deltaY);
 
+        if (isPipelineEntryPending(panel)) return false;
+
         if (!panel.classList.contains('is-pipeline-pinned')) {
           if (normalizedDelta <= 0) return false;
 
           snapPipelinePin(panel, { force: true });
+          if (!panel.classList.contains('is-pipeline-pinned')) return false;
+
           syncLenisToPipelinePin(panel);
 
           if (activeDemo?.inputAutoActive) return true;
@@ -7525,9 +7642,21 @@
 
         const progress = Number(runner.dataset.pipelineProgress || 0);
 
-        if (progress <= 0 && normalizedDelta < 0) {
+        if (progress <= getDemoInputPhase(activeDemo) + 0.0001 && normalizedDelta < 0) {
           releasePipelinePin(panel);
+          collapsePinScrollY = Math.max(0, getScrollY());
+          requestAnimationFrame(() => {
+            updateProjectListScrollState();
+            if (!panel.classList.contains('is-pipeline-pinned')) {
+              expandProjectListFromPipeline(panel);
+            }
+          });
           return false;
+        }
+
+        if (activeDemo?.inputAutoActive) {
+          syncLenisToPipelinePin(panel);
+          return true;
         }
 
         if (progress >= 1 && normalizedDelta > 0) {
@@ -7543,11 +7672,6 @@
       window.addEventListener('wheel', (event) => {
         if (prefersReducedMotion) return;
         dispatchPipelineWheel(getRawWheelDelta(event), event);
-      }, { passive: false, capture: true });
-
-      document.addEventListener('wheel', (event) => {
-        if (prefersReducedMotion || lenis) return;
-        dispatchPipelineWheel(event.deltaY, event);
       }, { passive: false, capture: true });
 
       document.addEventListener('touchstart', (event) => {
@@ -8683,6 +8807,12 @@
           removeBriefCursor();
           demo.classList.remove('is-ingesting', 'is-parsed', 'is-scroll-engaged');
 
+          const runner = demo.closest('[data-pipeline-runner]');
+          if (runner) {
+            setPipelineTrackTargetOffset(runner, demo, 0);
+            ensureWorkflowBriefVisible(runner);
+          }
+
           if (prefersReducedMotion) {
             finishBriefReveal();
             completeAutoBriefPhase();
@@ -8875,6 +9005,8 @@
           const flow = demo.querySelector('[data-workflow-layout="axis"]');
           const connectors = flow?.querySelectorAll(':scope > .aws-workflow-demo__connector') ?? [];
           const analyzeStage = demo.querySelector('.aws-workflow-demo__stage--analyze');
+          const analyzeNode = demo.querySelector('.aws-workflow-demo__analyze-node');
+          const axesCluster = demo.querySelector('.aws-workflow-demo__stage--axes-cluster');
           const compileStage = demo.querySelector('.aws-workflow-demo__stage--compile');
           const outputStage = demo.querySelector('.aws-workflow-demo__stage--output');
           const branchWiring = demo.querySelector('[data-axis-branch]');
@@ -8904,7 +9036,18 @@
             analyzeStage.style.transform = '';
           }
 
+          if (analyzeNode) {
+            analyzeNode.style.opacity = '1';
+            analyzeNode.style.transform = '';
+          }
+
+          if (axesCluster) {
+            axesCluster.style.opacity = '1';
+            axesCluster.style.transform = '';
+          }
+
           demo.querySelectorAll('.aws-workflow-axis-node').forEach((node) => {
+            if (node === analyzeNode) return;
             applyAxisNodeReveal(node, runner);
           });
 
@@ -8920,6 +9063,17 @@
           if (outputStage) {
             outputStage.style.opacity = String(revealT(outputStage));
             outputStage.style.transform = '';
+          }
+        };
+
+        const ensureWorkflowBriefVisible = (runner) => {
+          const briefStage = demo.querySelector('.aws-workflow-demo__stage--brief');
+          if (briefStage) {
+            briefStage.style.opacity = '1';
+            briefStage.style.transform = '';
+          }
+          if (usesAxisLayout) {
+            updateAwsAxisFlowOpacities(runner);
           }
         };
 
@@ -9055,10 +9209,19 @@
           const runner = demo.closest('[data-pipeline-runner]');
           if (!runner) return;
 
-          if (demo.inputAutoActive) return;
+          if (demo.inputAutoActive) {
+            if (isAutoBriefProject()) {
+              ensureWorkflowBriefVisible(runner);
+            }
+            return;
+          }
 
           if (isAutoBriefProject()) {
-            if (progress < AWS_BRIEF_PHASE - 0.0001) return;
+            if (progress < AWS_BRIEF_PHASE - 0.0001) {
+              setPipelineTrackTargetOffset(runner, demo, 0);
+              ensureWorkflowBriefVisible(runner);
+              return;
+            }
             if (progress > AWS_BRIEF_PHASE + 0.0005) {
               demo.classList.add('is-scroll-engaged');
             }
@@ -9291,8 +9454,11 @@ Dialogue: Mona Lisa: "Fine, keep your fizzy water." Girl: "It complements my pea
 
         const updatePipelineFlowOpacities = (moveT) => {
           const scenes = demo.querySelectorAll('.pipeline-script-scene');
+          if (!scenes.length) return;
+
+          const sceneSpan = 0.72 / scenes.length;
           scenes.forEach((scene, index) => {
-            const sceneStart = 0.22 + index * sceneSpan;
+            const sceneStart = index * sceneSpan;
             const sceneEnd = sceneStart + sceneSpan * 0.7;
             const localT = clamp((moveT - sceneStart) / Math.max(sceneEnd - sceneStart, 0.001), 0, 1);
             scene.style.opacity = String(localT);
@@ -9404,7 +9570,14 @@ Dialogue: Mona Lisa: "Fine, keep your fizzy water." Girl: "It complements my pea
           const runner = demo.closest('[data-pipeline-runner]');
           if (!runner) return;
 
-          if (demo.inputAutoActive) return;
+          if (demo.inputAutoActive) {
+            const uploadStage = demo.querySelector('.gmp-pipeline-demo__stage--upload');
+            if (uploadStage) {
+              uploadStage.style.opacity = '1';
+              uploadStage.style.transform = 'none';
+            }
+            return;
+          }
 
           if (isAutoUploadProject() && progress < GMP_UPLOAD_PHASE - 0.0001) {
             return;
@@ -9878,7 +10051,6 @@ Dialogue: Mona Lisa: "Fine, keep your fizzy water." Girl: "It complements my pea
       initWorkflowStudyDemo();
       initPipelineDemo();
       initPipelineHub();
-      initPipelineHorizontalScroll();
       initMinimalVideoPlayers();
       initDvaMatrixHover();
       initYouTubeEmbeds();
@@ -9887,6 +10059,7 @@ Dialogue: Mona Lisa: "Fine, keep your fizzy water." Girl: "It complements my pea
     }
 
     initSiteLoader(() => {
+      initPipelineHorizontalScroll();
       initLenisScroll();
       bootApp();
     });
